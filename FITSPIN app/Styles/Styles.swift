@@ -53,6 +53,24 @@ extension Color {
 }
 
 //Common button styling
+//Filled tangerine button
+struct FPOutlineTangerineButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.headline)
+            .foregroundColor(.fitspinTangerine)
+            .padding(.vertical, 12)
+            .padding(.horizontal, 24)
+            .background(Color.clear)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.fitspinTangerine, lineWidth: 2)
+            )
+            .opacity(configuration.isPressed ? 0.7 : 1.0)
+    }
+}
+
+//Full-width yellow button
 struct FPButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -68,3 +86,20 @@ struct FPButtonStyle: ButtonStyle {
             .padding(.horizontal)
     }
 }
+//Outline blue button
+struct FPOutlineButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.headline)
+            .foregroundColor(.fitspinBlue)
+            .padding(.vertical, 12)
+            .padding(.horizontal, 24)
+            .background(Color.clear)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.fitspinBlue, lineWidth: 2)
+            )
+            .opacity(configuration.isPressed ? 0.7 : 1.0)
+    }
+}
+
