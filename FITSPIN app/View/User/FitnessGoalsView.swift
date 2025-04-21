@@ -10,7 +10,7 @@ import SwiftUI
 struct FitnessGoalsView: View {
     // allow multiple selection
     @State private var selectedGoals: Set<Goal> = []
-
+    
     // define your goal options
     enum Goal: String, CaseIterable, Identifiable {
         case fatLoss   = "Fat Loss"
@@ -21,21 +21,21 @@ struct FitnessGoalsView: View {
         
         var id: String { rawValue }
     }
-
+    
     var body: some View {
         ZStack {
             Color.fitspinBackground.ignoresSafeArea()
-
+            
             VStack(spacing: 24) {
                 // Logo
-                Image("fitspin_logo")
+                Image("FITSPIN_logo")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 180)
-                    .padding(.top, 40)
-
+                    .padding(.top, 16)
+                
                 // Heading
-                VStack(spacing: 8) {
+                VStack(spacing: 4) {
                     Text("Select your fitness goal")
                         .font(.headline)
                         .foregroundColor(.fitspinYellow)
@@ -43,37 +43,48 @@ struct FitnessGoalsView: View {
                         .font(.subheadline)
                         .foregroundColor(.fitspinTangerine)
                 }
-        
-
-                // Goal buttons
+                
+                
+                // Goal buttons, multiple-select radio list
                 VStack(spacing: 16) {
                     ForEach(Goal.allCases) { goal in
                         Button {
-                            toggle(goal)
+                            // toggle membership
+                            if selectedGoals.contains(goal) {
+                                selectedGoals.remove(goal)
+                            } else {
+                                selectedGoals.insert(goal)
+                            }
                         } label: {
                             HStack {
-                                Text(goal.rawValue)
-                                    .foregroundColor(selectedGoals.contains(goal)
-                                                      ? .fitspinBackground
-                                                      : .fitspinTangerine)
-                                Spacer()
-                                if selectedGoals.contains(goal) {
-                                    Image(systemName: "checkmark")
-                                        .foregroundColor(.fitspinBackground)
+                                // radio circle
+                                ZStack {
+                                    Circle()
+                                        .stroke(Color.fitspinTangerine, lineWidth: 2)
+                                        .frame(width: 20, height: 20)
+                                    if selectedGoals.contains(goal) {
+                                        Circle()
+                                            .fill(Color.fitspinTangerine)
+                                            .frame(width: 12, height: 12)
+                                    }
                                 }
+                                Text(goal.rawValue)
+                                    .foregroundColor(.fitspinTangerine)
+                                    .padding(.leading, 12)
+                                Spacer()
                             }
                             .padding()
                             .background(
                                 RoundedRectangle(cornerRadius: 8)
                                     .stroke(
                                         selectedGoals.contains(goal)
-                                        ? Color.fitspinYellow
+                                        ? Color.fitspinTangerine
                                         : Color.fitspinTangerine,
                                         lineWidth: 2
                                     )
                                     .background(
                                         selectedGoals.contains(goal)
-                                        ? Color.fitspinYellow
+                                        ? Color.fitspinBlue
                                         : Color.clear
                                     )
                             )
@@ -82,20 +93,22 @@ struct FitnessGoalsView: View {
                 }
                 .padding(.horizontal)
                 
-
+                Spacer()
                 // Confirm
                 Button("Confirm") {
-                    // Save and navigate on
+                    // handle selectedGoals
+                    print("User chose: \(selectedGoals.map { $0.rawValue })")
                 }
                 .buttonStyle(FPOutlineButtonStyle())
                 .padding(.horizontal)
-
+                
                 Spacer()
             }
         }
         .navigationBarHidden(true)
     }
-
+    
+    
     private func toggle(_ goal: Goal) {
         if selectedGoals.contains(goal) {
             selectedGoals.remove(goal)
