@@ -33,6 +33,7 @@ struct TopTabsScreen: View {
 }
 struct TopTabsScreen_Previews: PreviewProvider {
     static var previews: some View {
-        TopTabsScreen()
+        TopTabsScreen().preferredColorScheme(.dark)
+        .previewDisplayName("Workouts Screen")
     }
 }
