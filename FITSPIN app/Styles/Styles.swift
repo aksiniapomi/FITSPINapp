@@ -12,7 +12,7 @@ extension Color {
   
     //FITSPIN Color Palette
     static let fitspinBackground = Color(hex: "232323")
-    static let fitspinBlue       = Color(hex: "623CEA")
+    static let fitspinBlue       = Color(hex: "4B61DE")
     static let fitspinTangerine  = Color(hex: "FF9B71")
     static let fitspinYellow     = Color(hex: "F9DC5C")
     static let fitspinOffWhite   = Color(hex: "FDFFFC")

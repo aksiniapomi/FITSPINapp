@@ -12,6 +12,7 @@ struct FITSPIN_appApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .preferredColorScheme(.dark)
         }
     }
 }
