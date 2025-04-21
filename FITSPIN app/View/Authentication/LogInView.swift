@@ -52,12 +52,12 @@ struct LoginView: View {
                             .textContentType(.emailAddress)
                             .disableAutocorrection(true)
                             .padding()
-                            .background(Color.fitspinOffWhite)
+                            .background(Color.fitspinInputBG)
                             .cornerRadius(8)
                         
                         SecureField("Password", text: $vm.password)
                             .padding()
-                            .background(Color.fitspinOffWhite)
+                            .background(Color.fitspinInputBG)
                             .cornerRadius(8)
                     }
                     .padding(.horizontal)

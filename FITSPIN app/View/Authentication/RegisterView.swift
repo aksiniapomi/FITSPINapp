@@ -47,18 +47,18 @@ struct RegisterView: View {
                     VStack(spacing: 16) {
                         TextField("Full name", text: $vm.fullName)
                             .padding()
-                            .background(Color.fitspinOffWhite)
+                            .background(Color.fitspinInputBG)
                             .cornerRadius(8)
                         
                         TextField("Email", text: $vm.email)
                             .textContentType(.emailAddress) //for ios autocomlete
                             .padding()
-                            .background(Color.fitspinOffWhite)
+                            .background(Color.fitspinInputBG)
                             .cornerRadius(8)
                         
                         SecureField("Password", text: $vm.password)
                             .padding()
-                            .background(Color.fitspinOffWhite)
+                            .background(Color.fitspinInputBG)
                             .cornerRadius(8)
                     }
                     .padding(.horizontal)
