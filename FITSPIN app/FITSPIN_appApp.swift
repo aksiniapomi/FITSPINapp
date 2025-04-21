@@ -11,7 +11,8 @@ import SwiftUI
 struct FITSPIN_appApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            BottomTabView()
+                .preferredColorScheme(.dark)
         }
     }
 }

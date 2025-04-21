@@ -101,7 +101,7 @@ struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
             LoginView()
-                .preferredColorScheme(.dark)
+               .preferredColorScheme(.dark)
         }
     }
 }
