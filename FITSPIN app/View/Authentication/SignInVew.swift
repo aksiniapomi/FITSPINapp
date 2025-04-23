@@ -12,7 +12,8 @@ class SignInViewModel: ObservableObject {
 }
 
 struct SignInView: View {
-    @StateObject private var vm = SignInViewModel()
+    
+    @EnvironmentObject private var authVM: AuthViewModel
     
     var body: some View {
         ZStack {
@@ -30,29 +31,40 @@ struct SignInView: View {
                 Spacer().frame(height:40)
                 
                 //buttons next to each other with equal width
-                HStack(spacing:16){
-                    Button("Sign Up") {
-                        // navigate to RegisterView
+                HStack(spacing: 16) {
+                    NavigationLink {
+                        RegisterView()
+                            .environmentObject(authVM)
+                    } label: {
+                        Text("Sign Up")
                     }
                     .buttonStyle(FPOutlineTangerineButtonStyle())
                     .frame(maxWidth: .infinity)
                     
-                    Button("Log In") {
-                        // navigate to LoginView
+                    NavigationLink {
+                        LoginView()
+                            .environmentObject(authVM)
+                    } label: {
+                        Text("Log In")
                     }
                     .buttonStyle(FPOutlineButtonStyle())
                     .frame(maxWidth: .infinity)
                 }
                 .frame(maxWidth: 300)
-         
+                
                 Spacer()
             }
             .padding(.horizontal)
         }
-        //.navigationBarHidden(true)
+        .navigationBarHidden(true)
     }
 }
 
-#Preview {
-    SignInView()
+
+struct SignInView_Previews: PreviewProvider {
+    static var previews: some View {
+        SignInView()
+            .environmentObject(AuthViewModel())
+            .preferredColorScheme(.dark)
+    }
 }

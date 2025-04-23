@@ -7,6 +7,9 @@
 import SwiftUI
 
 struct AccountView: View {
+    
+    @EnvironmentObject private var authVM: AuthViewModel
+    
     var body: some View {
         ZStack {
             Color.fitspinBackground
@@ -117,11 +120,12 @@ struct AccountView: View {
                     
                     //logout row
                     AccountRow(icon: "arrow.backward.circle",
-                                                  label: "Log Out",
-                                                  value: nil)
-                                           .onTapGesture {
-                                               // handle sign‑out logic
-                                           }
+                               label: "Log Out",
+                               value: nil)
+                    .onTapGesture {
+                        // handle sign‑out logic
+                        authVM.signOut()
+                    }
                 }
                 .padding(.leading, 32)
                 .padding(.trailing, 20)
