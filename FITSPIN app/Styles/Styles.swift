@@ -53,7 +53,7 @@ extension Color {
     }
 }
 
-//Common button styling
+// Common button styling
 //Filled tangerine button
 struct FPOutlineTangerineButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
@@ -101,6 +101,22 @@ struct FPOutlineButtonStyle: ButtonStyle {
                     .stroke(Color.fitspinBlue, lineWidth: 2)
             )
             .opacity(configuration.isPressed ? 0.7 : 1.0)
+    }
+}
+
+//Filled tangerine button
+struct FPFilledButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.headline)
+            .padding(.vertical, 12)
+            .padding(.horizontal, 24)
+            .background(
+                Color.fitspinTangerine
+                    .opacity(configuration.isPressed ? 0.7 : 1.0)
+            )
+            .foregroundColor(.fitspinInputBG)
+            .cornerRadius(8)
     }
 }
 
