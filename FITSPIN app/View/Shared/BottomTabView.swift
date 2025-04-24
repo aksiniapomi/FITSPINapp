@@ -44,16 +44,12 @@ struct BottomTabView: View {
 struct BottomTabView_Previews: PreviewProvider {
     static var previews: some View {
         BottomTabView()
-<<<<<<< HEAD
+
             .preferredColorScheme(.dark)
                  .previewDisplayName("Full App Tabs")
         
     }
 }
-//
-=======
+
         
-    }
-}
->>>>>>> origin/main
 
