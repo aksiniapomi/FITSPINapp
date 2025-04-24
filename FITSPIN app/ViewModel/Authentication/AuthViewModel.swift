@@ -22,15 +22,27 @@ class AuthViewModel: ObservableObject {
     }
   }
 
-  func signUp(email: String, password: String) async {
-    isLoading = true; authError = nil
-    do {
-      user = try await service.createUser(email: email, password: password)
-    } catch {
-      authError = error.localizedDescription
+    func signUp(fullName: String, email: String, password: String) async {
+      isLoading = true
+      authError = nil
+
+      do {
+        let result = try await Auth.auth()
+          .createUser(withEmail: email, password: password)
+
+        // write the displayName
+        let change = result.user.createProfileChangeRequest()
+        change.displayName = fullName
+        try await change.commitChanges()
+
+        // refresh local user
+        self.user = Auth.auth().currentUser
+      } catch {
+        authError = error.localizedDescription
+      }
+
+      isLoading = false
     }
-    isLoading = false
-  }
 
   func signIn(email: String, password: String) async {
     isLoading = true; authError = nil

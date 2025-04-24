@@ -6,62 +6,22 @@
 //
 
 import SwiftUI
-import CoreLocation  //location
-
-//Simple weather model
-struct Weather {
-    let temperature: Double
-    let condition: Condition
-    
-    enum Condition: String {
-        case clear, partlyCloudy = "partly_cloudy", rain, snow, thunderstorm
-        
-        var iconName: String {
-            switch self {
-            case .clear: return "sun.max.fill"
-            case .partlyCloudy: return "cloud.sun.fill"
-            case .rain: return "cloud.rain.fill"
-            case .snow: return "cloud.snow.fill"
-            case .thunderstorm: return "cloud.bolt.rain.fill"
-            }
-        }
-        var description: String {
-            switch self {
-            case .clear:         return "Perfect weather for a park workout!"
-            case .partlyCloudy:  return "A few clouds - still great! Let's train outside"
-            case .rain:          return "Might want an indoor session today."
-            case .snow:          return "Wrap up warm or hit the treadmill!"
-            case .thunderstorm:  return "Better stay inside—storm’s coming."
-            }
-        }
-    }
-}
-
-//ViewModel to fetch & publish weather
-@MainActor
-class HomeViewModel: ObservableObject {
-    @Published var weather: Weather?
-    @Published var isLoading = false
-    @Published var errorMessage: String?
-
-    func fetchWeather() async {
-        isLoading = true
-        errorMessage = nil
-        do {
-            // simulate network delay; replace with real API call
-            try await Task.sleep(nanoseconds: 500_000_000)
-            let dummy = Weather(temperature: 22.0, condition: .partlyCloudy)
-            weather = dummy
-        } catch {
-            errorMessage = "Unable to load weather."
-        }
-        isLoading = false
-    }
-}
+import CoreLocation
 
 struct HomeView: View {
     @StateObject private var vm = HomeViewModel()
-    let userName = "Xenia"   //make dynamic later
+    @EnvironmentObject private var authVM: AuthViewModel
+  
+    // derive a name from Firebase.User
+    private var userName: String {
+      if let displayName = authVM.user?.displayName,
+         !displayName.isEmpty {
+        return displayName
+      }
+      // fallback to the part before the “@” in their email
+      let email = authVM.user?.email ?? "User"
+      return String(email.split(separator: "@").first ?? Substring(email))
+    }
 
     var body: some View {
         ZStack {
