@@ -19,7 +19,7 @@ struct BottomTabView: View {
 
             TopTabsScreen()
                 .tabItem {
-                    Image(systemName: "map")
+                    Image(systemName: "dumbbell")
                     Text("Workouts")
                 }
 

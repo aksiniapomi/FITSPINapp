@@ -22,8 +22,8 @@ struct TopBarView: View {
             .padding(.top, -30)
 
             // Tab Items
-            HStack(spacing: 48) {
-                topTabButton(tab: .shuffle, icon: "shuffle", label: "Shuffle")
+            HStack(spacing: 55) {
+                topTabButton(tab: .shuffle, icon: "calendar", label: "Today")
                 topTabButton(tab: .filter, icon: "line.3.horizontal.decrease.circle", label: "Filter")
                 topTabButton(tab: .favourites, icon: "heart.fill", label: "Favourites")
                 topTabButton(tab: .notifications, icon: "bell", label: "Notifications", badge: "3")

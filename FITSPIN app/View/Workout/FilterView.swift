@@ -6,15 +6,8 @@
 //
 import SwiftUI
 
-//  FilterView.swift
-//  FITSPIN app
-
-import SwiftUI
-
 struct FilterView: View {
     @State private var searchText = ""
-    @State private var selectedWorkout: Workout? = nil
-    @State private var selectedCategory: String? = nil
 
     var body: some View {
         NavigationStack {
@@ -33,18 +26,16 @@ struct FilterView: View {
                     .cornerRadius(10)
                     .padding(.horizontal)
 
-                    // 🌤 Suggested Workout
+                    // 🌤 Suggested Workout Banner
                     SuggestedWorkoutBanner()
 
                     // 🔥 Trending Categories
-                    SectionHeaderView(title: "Trending")
+                    SectionHeaderView(title: "Trending", hasChevron: true)
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 16) {
-                            ForEach(sampleCategories.filter {
-                                searchText.isEmpty || $0.title.localizedCaseInsensitiveContains(searchText)
-                            }) { category in
+                            ForEach(sampleCategories) { category in
                                 NavigationLink(value: category.title) {
-                                    TrendingCategoryCard(category: category, isSelected: false)
+                                    TrendingCategoryCard(category: category)
                                 }
                             }
                         }
@@ -52,7 +43,7 @@ struct FilterView: View {
                     }
 
                     // 💪 Focus Areas
-                    SectionHeaderView(title: "By Focus Area")
+                    SectionHeaderView(title: "By Focus Area", hasChevron: true)
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 16) {
                             ForEach(focusAreas) { focus in
@@ -63,42 +54,40 @@ struct FilterView: View {
                         }
                         .padding(.horizontal)
                     }
+
                 }
                 .padding(.top)
             }
+            .navigationTitle("Find a Workout")
+            // When a category or focus is tapped, go to filtered list
             .navigationDestination(for: String.self) { filterTitle in
                 FilteredWorkoutListView(
                     filterTitle: filterTitle,
-                    matchingWorkouts: sampleWorkouts.filter { $0.type.localizedCaseInsensitiveContains(filterTitle) },
-                    selectedWorkout: $selectedWorkout
+                    matchingWorkouts: sampleWorkouts.filter {
+                        $0.type.localizedCaseInsensitiveContains(filterTitle)
+                    }
                 )
             }
-            .navigationDestination(isPresented: Binding(
-                get: { selectedWorkout != nil },
-                set: { if !$0 { selectedWorkout = nil } }
-            )) {
-                if let workout = selectedWorkout {
-                    WorkoutDeckViewFromSingle(workout: workout)
-                }
+            // When a workout is tapped in the filtered list, go to detail
+            .navigationDestination(for: Workout.self) { workout in
+                ExerciseDetailLoadedView(exercise: workout)
             }
-            .background(Color.fitspinBackground)
-            .ignoresSafeArea()
+            .background(Color.fitspinBackground.ignoresSafeArea())
         }
     }
 }
 
+// MARK: – Filtered List
+
 struct FilteredWorkoutListView: View {
     let filterTitle: String
     let matchingWorkouts: [Workout]
-    @Binding var selectedWorkout: Workout?
 
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
                 ForEach(matchingWorkouts) { workout in
-                    Button(action: {
-                        selectedWorkout = workout
-                    }) {
+                    NavigationLink(value: workout) {
                         WorkoutCard(workout: workout)
                     }
                 }
@@ -110,33 +99,14 @@ struct FilteredWorkoutListView: View {
     }
 }
 
-struct WorkoutDeckViewFromSingle: View {
-    let workout: Workout
-
-    var body: some View {
-        VStack {
-            Text("Shuffle Preview")
-                .font(.title2)
-                .foregroundColor(.white)
-                .padding()
-
-            WorkoutCard(workout: workout)
-                .padding()
-
-            Spacer()
-        }
-        .background(Color.fitspinBackground)
-        .ignoresSafeArea()
-    }
-}
-
+// MARK: – Suggested Workout Banner
 
 struct SuggestedWorkoutBanner: View {
-    var weatherCondition: String = "sunny" // can come from a weather API
+    var weatherCondition: String = "sunny" // replace with real data
 
     var body: some View {
         let suggestedType = (weatherCondition == "sunny") ? "Park Workout" : "Indoor Training"
-        let imageName = (weatherCondition == "sunny") ? "parkWorkout" : "indoorWorkout" // your asset names
+        let imageName = (weatherCondition == "sunny") ? "parkWorkout" : "indoorWorkout"
 
         VStack(alignment: .leading, spacing: 8) {
             Text("Suggested Workout of the Day")
@@ -153,70 +123,19 @@ struct SuggestedWorkoutBanner: View {
                     .cornerRadius(12)
 
                 Text(suggestedType)
-                    .font(.title3)
-                    .fontWeight(.semibold)
+                    .font(.title3).bold()
                     .foregroundColor(.white)
-                    .padding()
+                    .padding(8)
                     .background(Color.black.opacity(0.3))
-                    .cornerRadius(10)
+                    .cornerRadius(8)
                     .padding(10)
             }
             .padding(.horizontal)
-            .padding(.top)
         }
     }
 }
 
-struct TrendingCategoryCard: View {
-    let category: WorkoutCategory
-    let isSelected: Bool
-
-    var body: some View {
-        VStack(spacing: 6) {
-            ZStack {
-                Image(category.imageName)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 70, height: 70)
-                    .clipShape(Circle())
-
-                if isSelected {
-                    Circle()
-                        .stroke(Color.fitspinTangerine, lineWidth: 3)
-                        .frame(width: 74, height: 74)
-                }
-            }
-
-            Text(category.title)
-                .foregroundColor(isSelected ? .fitspinTangerine : .white)
-                .font(.caption)
-                .multilineTextAlignment(.center)
-                .frame(width: 70)
-        }
-    }
-}
-
-struct WorkoutDeckView: View {
-    let selectedFilter: WorkoutCategory?
-
-    var body: some View {
-        VStack {
-            Text("Shuffle View")
-                .font(.title)
-                .foregroundColor(.white)
-                .padding(.top)
-
-            if let filter = selectedFilter {
-                Text("Showing workouts for: \(filter.title)")
-                    .foregroundColor(.fitspinTangerine)
-            }
-
-            Spacer()
-        }
-        .background(Color.fitspinBackground)
-        .ignoresSafeArea()
-    }
-}
+// MARK: – Section Header
 
 struct SectionHeaderView: View {
     let title: String
@@ -236,6 +155,34 @@ struct SectionHeaderView: View {
         .padding(.horizontal)
     }
 }
+
+// MARK: – Trending Category Card
+
+struct TrendingCategoryCard: View {
+    let category: WorkoutCategory
+
+    var body: some View {
+        VStack(spacing: 6) {
+            Image(category.imageName)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 70, height: 70)
+                .clipShape(Circle())
+
+            Text(category.title)
+                .foregroundColor(.white)
+                .font(.caption2)
+                .multilineTextAlignment(.center)
+                .frame(width: 70)
+        }
+        .padding(4)
+        .background(Color.gray.opacity(0.2))
+        .cornerRadius(10)
+    }
+}
+
+// MARK: – Focus Area Card
+
 struct FocusAreaCard: View {
     let focus: FocusArea
 
@@ -252,13 +199,14 @@ struct FocusAreaCard: View {
                 .font(.caption2)
                 .foregroundColor(.fitspinOffWhite)
                 .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity)
-
+                .frame(width: 160)
         }
-        .frame(width: 160)
-        .cornerRadius(5)
+        .background(Color.gray.opacity(0.2))
+        .cornerRadius(12)
     }
 }
+
+// MARK: – Workout Card
 
 struct WorkoutCard: View {
     let workout: Workout
@@ -286,6 +234,7 @@ struct WorkoutCard: View {
     }
 }
 
+// MARK: – Supporting Types & Sample Data
 
 struct WorkoutCategory: Identifiable {
     let id = UUID()
@@ -299,11 +248,46 @@ struct FocusArea: Identifiable {
     let imageName: String
 }
 
-
 let sampleWorkouts: [Workout] = [
-    .init(title: "Lower Body Strength", type: "Strength", imageName: "strength1", videoURL: nil, suggestions: ["Slow reps", "Engage core"], sets: 4, reps: 12),
-    .init(title: "Bodyweight HIIT", type: "HIIT", imageName: "hiit1", videoURL: nil, suggestions: ["Jump squats", "High knees"], sets: 3, reps: 15),
-    .init(title: "Full Body Burn", type: "Cardio", imageName: "cardio1", videoURL: nil, suggestions: ["No rest", "Keep moving"], sets: 5, reps: 20)
+    Workout(
+        apiId: 1,
+        title: "Lower Body Strength",
+        type: "Strength",
+        imageName: "strength1",
+        videoURL: nil,
+        suggestions: ["Slow reps", "Engage core"],
+        sets: 4,
+        reps: 12,
+        equipment: ["Dumbbells"],
+        description: "This lower body strength workout targets your quads, glutes, and hamstrings.",
+        muscleIds: [10, 11, 12]      // wger muscle‐group IDs, or empty if you're mocking
+    ),
+    Workout(
+        apiId: 2,
+        title: "Bodyweight HIIT",
+        type: "HIIT",
+        imageName: "hiit1",
+        videoURL: nil,
+        suggestions: ["Jump squats", "High knees"],
+        sets: 3,
+        reps: 15,
+        equipment: ["None"],
+        description: "A high-intensity routine to get your heart pumping without any equipment.",
+        muscleIds: []               // no specific muscle IDs here
+    ),
+    Workout(
+        apiId: 3,
+        title: "Full Body Burn",
+        type: "Cardio",
+        imageName: "cardio1",
+        videoURL: nil,
+        suggestions: ["No rest", "Keep moving"],
+        sets: 5,
+        reps: 20,
+        equipment: ["Yoga Mat"],
+        description: "A full-body cardio blast to increase endurance and burn calories fast.",
+        muscleIds: [1, 2, 3]        // placeholder IDs
+    )
 ]
 
 
@@ -331,6 +315,7 @@ let focusAreas: [FocusArea] = [
     .init(title: "Quick Workouts", imageName: "strength")
 ]
 
+// MARK: – Preview
 
 #Preview {
     FilterView()
