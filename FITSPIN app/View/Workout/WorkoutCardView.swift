@@ -5,39 +5,29 @@
 //  Created by Derya Baglan on 21/04/2025.
 //
 
+
 import SwiftUI
 import AVKit   // for VideoPlayer
-
-// Model for each workout
-struct Workout: Identifiable {
-    let id = UUID()
-    let name: String
-    let videoURL: URL?
-    let suggestions: [String]
-    let sets: Int
-    let reps: Int
-}
+// ← remove “import Models”
 
 struct WorkoutCardView: View {
-    let workout: Workout
+    let workout: Workout             // this comes from Models/Workout.swift
     @Binding var isPlaying: Bool
     @Binding var elapsedTime: TimeInterval
-    
     let onReset: () -> Void
-    
+
     @State private var timer: Timer?
-    //local state for liked
     @State private var isLiked = false
-    
+
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             RoundedRectangle(cornerRadius: 20)
                 .fill(Color.fitspinInputBG.opacity(0.2))
                 .shadow(radius: 4)
-            
+
             VStack(spacing: 12) {
                 Spacer()
-                
+
                 // Video or placeholder
                 if let url = workout.videoURL {
                     VideoPlayer(player: AVPlayer(url: url))
@@ -54,17 +44,18 @@ struct WorkoutCardView: View {
                                 .foregroundColor(.fitspinOffWhite.opacity(0.7))
                         )
                 }
-                
+
                 // Workout info
                 VStack(alignment: .leading, spacing: 4) {
+                    Text(workout.title)
+                        .font(.headline)
+                        .foregroundColor(.fitspinTangerine)
                     Text("\(workout.sets) sets of \(workout.reps)")
-                        .font(.subheadline).bold()
+                        .font(.subheadline)
                         .foregroundColor(.fitspinOffWhite)
-                    
                     Text("SUGGESTIONS")
                         .font(.caption2).bold()
                         .foregroundColor(.fitspinOffWhite.opacity(0.7))
-                    
                     ForEach(workout.suggestions, id: \.self) { s in
                         Text("• \(s)")
                             .font(.caption2)
@@ -72,23 +63,16 @@ struct WorkoutCardView: View {
                     }
                 }
                 .padding(.horizontal)
-                
+
                 // Timer + controls
                 HStack(spacing: 24) {
-                    // 1) Circular “R” reset
-                    Button {
-                        onReset()
-                    } label: {
+                    Button(action: onReset) {
                         Text("R")
                             .font(.headline)
                             .foregroundColor(.fitspinBlue)
+                            .frame(width: 40, height: 40)
+                            .background(Circle().stroke(Color.fitspinBlue, lineWidth: 2))
                     }
-                    .frame(width: 40, height: 40)
-                    .background(
-                        Circle()
-                            .stroke(Color.fitspinBlue, lineWidth: 2)
-                    )
-                    // Pause button
                     Button {
                         isPlaying = false
                         timer?.invalidate()
@@ -97,8 +81,6 @@ struct WorkoutCardView: View {
                             .font(.system(size: 36))
                             .foregroundColor(.fitspinTangerine)
                     }
-                    
-                    // Play button
                     Button {
                         isPlaying = true
                         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
@@ -109,8 +91,6 @@ struct WorkoutCardView: View {
                             .font(.system(size: 36))
                             .foregroundColor(.fitspinBlue)
                     }
-                    
-                    // Elapsed timer
                     Text(timeString(from: elapsedTime))
                         .font(.subheadline.monospacedDigit())
                         .foregroundColor(.fitspinOffWhite)
@@ -118,8 +98,8 @@ struct WorkoutCardView: View {
                 .padding(.bottom, 8)
             }
             .padding()
-            
-            // Floating favorite toggable button
+
+            // Like button
             Button {
                 isLiked.toggle()
             } label: {
@@ -130,16 +110,7 @@ struct WorkoutCardView: View {
             .offset(x: -16, y: -16)
         }
     }
-    
-    private func togglePlay() {
-        if isPlaying {
-            // stop timer
-        } else {
-            // start timer
-        }
-        isPlaying.toggle()
-    }
-    
+
     private func timeString(from seconds: TimeInterval) -> String {
         let mins = Int(seconds) / 60
         let secs = Int(seconds) % 60
@@ -150,22 +121,29 @@ struct WorkoutCardView: View {
 struct WorkoutCardView_Previews: PreviewProvider {
     @State static var playing = false
     @State static var time: TimeInterval = 0
-    
+
     static var previews: some View {
         WorkoutCardView(
             workout: Workout(
-                name: "Squats",
+                title: "Squats",
+                type: "Strength",
+                imageName: "squats",
                 videoURL: nil,
                 suggestions: ["Use weights", "Keep back straight"],
-                sets: 4, reps: 10
+                sets: 4,
+                reps: 10
             ),
             isPlaying: $playing,
             elapsedTime: $time,
             onReset: { playing = false; time = 0 }
         )
         .preferredColorScheme(.dark)
-        .frame(width: 300, height: 400)
+        .frame(width: 320, height: 450)
     }
 }
+
+
+
+
 
 ///
