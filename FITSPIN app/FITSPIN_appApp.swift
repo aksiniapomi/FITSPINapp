@@ -5,9 +5,6 @@
 //  Created by Xenia Uni Account on 04/04/2025.
 //
 
-import SwiftUI
-import FirebaseCore
-
 //delegate that bootstraps Firebase
 import SwiftUI
 import FirebaseCore
