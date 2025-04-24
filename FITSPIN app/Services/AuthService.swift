@@ -13,10 +13,17 @@ final class AuthService {
   static let shared = AuthService()
   private init() {}
 
-  //Listen continuously to auth‐state changes.
-  func addAuthStateListener(_ listener: @escaping (User?) -> Void) {
-    Auth.auth().addStateDidChangeListener { _, user in listener(user) }
-  }
+    //Listen continuously to auth‐state changes.
+    // Returns: a handle to keep if you ever want to remove the listener
+    @discardableResult
+    func addAuthStateListener(_ listener: @escaping (User?) -> Void)
+      -> AuthStateDidChangeListenerHandle
+    {
+      return Auth.auth()
+        .addStateDidChangeListener { _, user in
+          listener(user)
+        }
+    }
 
   //Create a new user
   func createUser(email: String, password: String) async throws -> User {
