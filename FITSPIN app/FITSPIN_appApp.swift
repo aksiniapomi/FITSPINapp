@@ -40,6 +40,7 @@ struct FITSPIN_appApp: App {
                 SignInView()
             }
         }
+ 
         else {
           BottomTabView()
         }
