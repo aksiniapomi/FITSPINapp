@@ -5,10 +5,8 @@
 //  Created by Derya Baglan on 21/04/2025.
 //
 
-
 import SwiftUI
 import AVKit   // for VideoPlayer
-// ← remove “import Models”
 
 struct WorkoutCardView: View {
     let workout: Workout             // this comes from Models/Workout.swift
@@ -125,23 +123,29 @@ struct WorkoutCardView_Previews: PreviewProvider {
     static var previews: some View {
         WorkoutCardView(
             workout: Workout(
-                title: "Squats",
-                type: "Strength",
-                imageName: "squats",
-                videoURL: nil,
+                apiId:       101,
+                title:       "Squats",
+                type:        "Strength",
+                imageName:   "squats",
+                videoURL:    nil,
                 suggestions: ["Use weights", "Keep back straight"],
-                sets: 4,
-                reps: 10
+                sets:        4,
+                reps:        10,
+                equipment:   ["Bodyweight", "Dumbbells"],
+                description: "Squats are a foundational movement for building lower body strength.",
+                muscleIds:   [10, 12]
             ),
             isPlaying: $playing,
             elapsedTime: $time,
-            onReset: { playing = false; time = 0 }
+            onReset: {
+                playing = false
+                time = 0
+            }
         )
         .preferredColorScheme(.dark)
         .frame(width: 320, height: 450)
     }
 }
-
 
 
 
