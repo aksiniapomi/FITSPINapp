@@ -74,7 +74,7 @@ struct RegisterView: View {
                     //sign up button
                 Button("Sign Up") {
                   Task {
-                    await authVM.signUp(email: email, password: password)
+                    await authVM.signUp(fullName: fullName,email: email, password: password)
                   }
                 }
                 .buttonStyle(FPButtonStyle())
