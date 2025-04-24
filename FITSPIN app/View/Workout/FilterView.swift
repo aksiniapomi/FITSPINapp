@@ -293,12 +293,6 @@ struct WorkoutCategory: Identifiable {
     let imageName: String
 }
 
-struct Workout: Identifiable {
-    let id = UUID()
-    let title: String
-    let type: String
-    let imageName: String
-}
 struct FocusArea: Identifiable {
     let id = UUID()
     let title: String
@@ -307,10 +301,11 @@ struct FocusArea: Identifiable {
 
 
 let sampleWorkouts: [Workout] = [
-    .init(title: "Lower Body Strength", type: "Strength", imageName: "strength1"),
-    .init(title: "Bodyweight HIIT", type: "HIIT", imageName: "strength2"),
-    .init(title: "Full Body Burn", type: "Cardio", imageName: "strength3")
+    .init(title: "Lower Body Strength", type: "Strength", imageName: "strength1", videoURL: nil, suggestions: ["Slow reps", "Engage core"], sets: 4, reps: 12),
+    .init(title: "Bodyweight HIIT", type: "HIIT", imageName: "hiit1", videoURL: nil, suggestions: ["Jump squats", "High knees"], sets: 3, reps: 15),
+    .init(title: "Full Body Burn", type: "Cardio", imageName: "cardio1", videoURL: nil, suggestions: ["No rest", "Keep moving"], sets: 5, reps: 20)
 ]
+
 
 let sampleCategories: [WorkoutCategory] = [
     .init(title: "Full Body", imageName: "fullbody"),
