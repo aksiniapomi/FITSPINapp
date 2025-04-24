@@ -35,16 +35,6 @@
 			path = "FITSPIN app";
 			sourceTree = "<group>";
 		};
-		5C30A6DC2DA035C5009EC553 /* FITSPIN appTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "FITSPIN appTests";
-			sourceTree = "<group>";
-		};
-		5C30A6E62DA035C5009EC553 /* FITSPIN appUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "FITSPIN appUITests";
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,8 +66,6 @@
 			isa = PBXGroup;
 			children = (
 				5C30A6CA2DA035C2009EC553 /* FITSPIN app */,
-				5C30A6DC2DA035C5009EC553 /* FITSPIN appTests */,
-				5C30A6E62DA035C5009EC553 /* FITSPIN appUITests */,
 				5C30A6C92DA035C2009EC553 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -130,9 +118,6 @@
 			dependencies = (
 				5C30A6DB2DA035C5009EC553 /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				5C30A6DC2DA035C5009EC553 /* FITSPIN appTests */,
-			);
 			name = "FITSPIN appTests";
 			packageProductDependencies = (
 			);
@@ -152,9 +137,6 @@
 			);
 			dependencies = (
 				5C30A6E52DA035C5009EC553 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				5C30A6E62DA035C5009EC553 /* FITSPIN appUITests */,
 			);
 			name = "FITSPIN appUITests";
 			packageProductDependencies = (
