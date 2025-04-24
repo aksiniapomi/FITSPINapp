@@ -42,18 +42,22 @@ struct RegisterView: View {
                     VStack(spacing: 16) {
                         TextField("Full name", text: $fullName)
                             .padding()
-                            .background(Color.fitspinInputBG)
+                            .foregroundColor(.fitspinOffWhite)
+                            .disableAutocorrection(true)
+                            .background(Color.fitspinFieldBlue)
                             .cornerRadius(8)
                         
                         TextField("Email", text: $email)
                             .textContentType(.emailAddress) //for ios autocomlete
+                            .foregroundColor(.fitspinOffWhite)
                             .padding()
-                            .background(Color.fitspinInputBG)
+                            .background(Color.fitspinFieldBlue)
                             .cornerRadius(8)
                         
                         SecureField("Password", text: $password)
                             .padding()
-                            .background(Color.fitspinInputBG)
+                            .foregroundColor(.fitspinOffWhite)
+                            .background(Color.fitspinFieldBlue)
                             .cornerRadius(8)
                     
                     }
@@ -156,7 +160,7 @@ struct RegisterView_Previews: PreviewProvider {
         NavigationStack {
             RegisterView()
                 .environmentObject(AuthViewModel()) 
-                .preferredColorScheme(.dark)
+              //  .preferredColorScheme(.dark)
         }
     }
 }

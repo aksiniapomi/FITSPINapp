@@ -18,7 +18,7 @@ struct LoginView: View {
       ScrollView {
         VStack(spacing: 30) {
           // logo
-          Image("fitspin_logo")
+          Image("FITSPIN_logo")
             .resizable().scaledToFit().frame(width: 180)
             .padding(.top, 40)
 
@@ -36,12 +36,14 @@ struct LoginView: View {
               .textContentType(.emailAddress)
               .disableAutocorrection(true)
               .padding()
-              .background(Color.fitspinInputBG)
+              .background(Color.fitspinFieldBlue)
               .cornerRadius(8)
+              .foregroundColor(.fitspinOffWhite)
 
             SecureField("Password", text: $password)
               .padding()
-              .background(Color.fitspinInputBG)
+              .foregroundColor(.fitspinOffWhite)
+              .background(Color.fitspinFieldBlue)
               .cornerRadius(8)
           }
           .padding(.horizontal)
@@ -91,7 +93,7 @@ struct LoginView_Previews: PreviewProvider {
     NavigationStack {
       LoginView()
         .environmentObject(AuthViewModel())
-        .preferredColorScheme(.dark)
+       // .preferredColorScheme(.dark)
     }
   }
 }
