@@ -7,18 +7,13 @@
 
 import SwiftUI
 
-class RegisterViewModel: ObservableObject {
-    @Published var fullName = ""
-    @Published var email    = ""
-    @Published var password = ""
-    @Published var isLoading = false
-    
-    //validation / registration logic here
-}
-
 struct RegisterView: View {
-    @StateObject private var vm = RegisterViewModel()
-    @Environment(\.dismiss) var dismiss
+    
+    @EnvironmentObject private var authVM: AuthViewModel
+    
+    @State private var fullName = ""
+    @State private var email    = ""
+    @State private var password = ""
     
     var body: some View {
         ZStack {
@@ -27,13 +22,13 @@ struct RegisterView: View {
             //ensure the form scrolls on smaller screens
             ScrollView {
                 VStack(spacing: 30) {
-                    
+                    //logo
                     Image("FITSPIN_logo")
                         .resizable()
                         .scaledToFit()
                         .frame(width: 180)
                         .padding(.top, 40)
-                    
+                    //text heading
                     VStack(spacing: 8) {
                         Text("Join our fitness community!")
                             .font(.headline)
@@ -45,30 +40,44 @@ struct RegisterView: View {
                     
                     //input fields
                     VStack(spacing: 16) {
-                        TextField("Full name", text: $vm.fullName)
+                        TextField("Full name", text: $fullName)
                             .padding()
                             .background(Color.fitspinInputBG)
                             .cornerRadius(8)
                         
-                        TextField("Email", text: $vm.email)
+                        TextField("Email", text: $email)
                             .textContentType(.emailAddress) //for ios autocomlete
                             .padding()
                             .background(Color.fitspinInputBG)
                             .cornerRadius(8)
                         
-                        SecureField("Password", text: $vm.password)
+                        SecureField("Password", text: $password)
                             .padding()
                             .background(Color.fitspinInputBG)
                             .cornerRadius(8)
+                    
                     }
                     .padding(.horizontal)
+                
+                //Firebase errors
+                if let err = authVM.authError {
+                  Text(err)
+                    .foregroundColor(.red)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+                }
                     
                     //sign up button
-                    Button("Sign up") {
-                        // vm.register()
-                    }
-                    .buttonStyle(FPButtonStyle())   // full-width yellow
-                    .disabled(vm.fullName.isEmpty || vm.email.isEmpty || vm.password.isEmpty)
+                Button("Sign Up") {
+                  Task {
+                    await authVM.signUp(email: email, password: password)
+                  }
+                }
+                .buttonStyle(FPButtonStyle())
+                .disabled(fullName.isEmpty ||
+                          email.isEmpty ||
+                          password.isEmpty ||
+                          authVM.isLoading)
                     
                     //Swift divider is vertical by default so use an thin rectangle
                     HStack(alignment: .center) {
@@ -112,8 +121,7 @@ struct RegisterView: View {
                 }
             }
         }
-        // .navigationTitle("Register")
-        //.navigationBarTitleDisplayMode(.inline)
+        .navigationBarHidden(true)
     }
 }
 
@@ -147,6 +155,7 @@ struct RegisterView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
             RegisterView()
+                .environmentObject(AuthViewModel()) 
                 .preferredColorScheme(.dark)
         }
     }
