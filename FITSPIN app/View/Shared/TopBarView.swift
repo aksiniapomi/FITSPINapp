@@ -19,6 +19,7 @@ struct TopBarView: View {
                     .frame(height: 120)
                 Spacer()
             }
+            .padding(.top, -30)
 
             // Tab Items
             HStack(spacing: 48) {
