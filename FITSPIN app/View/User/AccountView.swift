@@ -5,10 +5,20 @@
 //  Created by Derya Baglan on 21/04/2025.
 //
 import SwiftUI
+import FirebaseAuth
 
 struct AccountView: View {
     
     @EnvironmentObject private var authVM: AuthViewModel
+    @EnvironmentObject private var homeVM: HomeViewModel
+    
+    private var displayName: String {
+          authVM.user?.displayName ?? "Guest"
+      }
+      
+      private var emailAddress: String {
+          authVM.user?.email ?? ""
+      }
     
     var body: some View {
         ZStack {
@@ -33,8 +43,7 @@ struct AccountView: View {
                         .foregroundColor(.fitspinOffWhite)
                     
                     Spacer()
-                    
-                    
+                
                     Image(systemName: "line.horizontal.3")
                         .opacity(0)
                 }
@@ -44,7 +53,7 @@ struct AccountView: View {
                 Spacer()
                 
                 HStack(spacing: 12) {
-                    Image("profile_picture")
+                    Image("profile_picture") //placeholder image
                         .resizable()
                         .scaledToFill()
                         .frame(width: 80, height: 80)
@@ -55,17 +64,17 @@ struct AccountView: View {
                         )
                     
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Xenia Pominova")
+                        Text(displayName)
                             .font(.headline)
                             .foregroundColor(.fitspinYellow)
                         
-                        Text("xeniapominova@domain.com")
+                        Text(emailAddress)
                             .font(.subheadline)
                             .foregroundColor(.fitspinYellow)
                         
                         HStack(spacing: 4) {
                             Image(systemName: "mappin.and.ellipse")
-                            Text("London")
+                            Text(homeVM.city ?? "—") //take the same location CCLocation pulled from weather call and feed into Apple's reverse-geocoder. Reverse gecoding will give CLPlacemark that contains locality as well (city)
                         }
                         .font(.subheadline)
                         .foregroundColor(.fitspinYellow)
@@ -184,5 +193,6 @@ struct AccountView_Previews: PreviewProvider {
     static var previews: some View {
         AccountView()
             .preferredColorScheme(.dark)
+            .environmentObject(AuthViewModel())
     }
 }

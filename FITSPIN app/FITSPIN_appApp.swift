@@ -28,6 +28,7 @@ struct FITSPIN_appApp: App {
     
     //Create one at State object for the whole app
   @StateObject private var authVM = AuthViewModel()
+  @StateObject private var homeVM = HomeViewModel()
 
   var body: some Scene {
     WindowGroup {
@@ -44,6 +45,7 @@ struct FITSPIN_appApp: App {
       }
         //inject the AuthViewModel into the environment
       .environmentObject(authVM)
+      .environmentObject(homeVM)
       .preferredColorScheme(.dark)
     }
   }
