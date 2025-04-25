@@ -5,8 +5,6 @@
 //  Created by Xenia Uni Account on 24/04/2025.
 //
 
-// ViewModel/HomeViewModel.swift
-
 import Foundation
 import CoreLocation
 
@@ -88,33 +86,18 @@ class HomeViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     //Reverse-geocode helper
+    //CLGoecoder in ios 15+ has an async throws API 
     private func fetchCity(from location: CLLocation) async {
-        do {
-            
-            let placemarks: [CLPlacemark] = try await withCheckedThrowingContinuation {
-                (cont: CheckedContinuation<[CLPlacemark], Error>) in
-                geocoder.reverseGeocodeLocation(location) { marks, error in
-                    if let error = error {
-                        cont.resume(throwing: error)
-                    } else {
-                        cont.resume(returning: marks ?? [])
-                    }
-                }
-            }
-            // first placemark’s locality is your city
-            city = placemarks.first?.locality
-        } catch {
-            print("reverse-geocode failed:", error)
-            city = nil
-        }
+      do {
+        let places = try await geocoder.reverseGeocodeLocation(location)
+        city = places.first?.locality
+      } catch {
+        print("reverse-geocode failed:", error)
+        city = nil
+      }
     }
-}
+  }
 
 
-// Hydration advice: baseline 2L/day + extra per hot degree
-/* let extra = max(0, tempC - 20) * 0.1   // +100ml per °C above 20
- let totalLitres = 2.0 + extra
- hydrationAdvice = String(format: "Aim for %.1f L of water today", totalLitres)
- }
- } */
+
 

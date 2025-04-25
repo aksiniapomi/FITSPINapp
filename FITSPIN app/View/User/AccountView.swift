@@ -74,7 +74,7 @@ struct AccountView: View {
                         
                         HStack(spacing: 4) {
                             Image(systemName: "mappin.and.ellipse")
-                            Text(homeVM.city ?? "—") //take the same location CCLocation pulled from weather call and feed into Apple's reverse-geocoder. Reverse gecoding will give CLPlacemark that contains locality as well (city)
+                            Text(homeVM.city ?? "Unknown city") //take the same location CCLocation pulled from weather call and feed into Apple's reverse-geocoder. Reverse gecoding will give CLPlacemark that contains locality as well (city)
                         }
                         .font(.subheadline)
                         .foregroundColor(.fitspinYellow)
@@ -194,5 +194,6 @@ struct AccountView_Previews: PreviewProvider {
         AccountView()
             .preferredColorScheme(.dark)
             .environmentObject(AuthViewModel())
+            .environmentObject(HomeViewModel())
     }
 }

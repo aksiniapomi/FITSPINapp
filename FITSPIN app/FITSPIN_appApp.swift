@@ -17,7 +17,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     if FirebaseApp.app() == nil {
       FirebaseApp.configure()
     }
-    return true
+    return true 
   }
 }
 
@@ -28,18 +28,17 @@ struct FITSPIN_appApp: App {
     
     //Create one at State object for the whole app
   @StateObject private var authVM = AuthViewModel()
-  @StateObject private var homeVM = HomeViewModel()
+  @StateObject private var homeVM = HomeViewModel() //all the tabs now read homeVM.weather
 
   var body: some Scene {
     WindowGroup {
       Group {
+          //if not signed in, show the SignInView
         if authVM.user == nil {
             NavigationStack {
                 SignInView()
             }
-        }
- 
-        else {
+        } else {
           BottomTabView()
         }
       }
