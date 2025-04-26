@@ -6,107 +6,138 @@
 //
 
 import SwiftUI
-import AVKit   // for VideoPlayer
+import AVKit
 
 struct WorkoutCardView: View {
-    let workout: Workout             // this comes from Models/Workout.swift
-    @Binding var isPlaying: Bool
-    @Binding var elapsedTime: TimeInterval
-    let onReset: () -> Void
+    let workout: Workout
 
+    @State private var isPlaying = false
+    @State private var elapsedTime: TimeInterval = 0
     @State private var timer: Timer?
-    @State private var isLiked = false
+    @State private var player: AVPlayer?
+    @State private var animateHeart = false
+    @State private var showToast = false
+    @State private var toastMessage = ""
+
+    @EnvironmentObject var favouritesStore: FavouritesStore
 
     var body: some View {
-        ZStack(alignment: .bottomTrailing) {
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color.fitspinInputBG.opacity(0.2))
-                .shadow(radius: 4)
-
-            VStack(spacing: 12) {
-                Spacer()
-
-                // Video or placeholder
-                if let url = workout.videoURL {
-                    VideoPlayer(player: AVPlayer(url: url))
-                        .frame(height: 180)
-                        .cornerRadius(12)
-                } else {
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.4))
-                        .frame(height: 180)
-                        .cornerRadius(12)
-                        .overlay(
-                            Image(systemName: "play.circle.fill")
-                                .font(.system(size: 50))
-                                .foregroundColor(.fitspinOffWhite.opacity(0.7))
-                        )
-                }
-
-                // Workout info
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(workout.title)
-                        .font(.headline)
-                        .foregroundColor(.fitspinTangerine)
-                    Text("\(workout.sets) sets of \(workout.reps)")
-                        .font(.subheadline)
-                        .foregroundColor(.fitspinOffWhite)
-                    Text("SUGGESTIONS")
-                        .font(.caption2).bold()
-                        .foregroundColor(.fitspinOffWhite.opacity(0.7))
-                    ForEach(workout.suggestions, id: \.self) { s in
-                        Text("• \(s)")
-                            .font(.caption2)
-                            .foregroundColor(.fitspinOffWhite)
+        VStack(alignment: .leading, spacing: 10) {
+            // 🎥 Video
+            if let url = workout.videoURL {
+                VideoPlayer(player: player)
+                    .frame(height: 220)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .onAppear {
+                        player = AVPlayer(url: url)
                     }
-                }
-                .padding(.horizontal)
-
-                // Timer + controls
-                HStack(spacing: 24) {
-                    Button(action: onReset) {
-                        Text("R")
-                            .font(.headline)
-                            .foregroundColor(.fitspinBlue)
-                            .frame(width: 40, height: 40)
-                            .background(Circle().stroke(Color.fitspinBlue, lineWidth: 2))
-                    }
-                    Button {
-                        isPlaying = false
-                        timer?.invalidate()
-                    } label: {
-                        Image(systemName: "pause.circle.fill")
-                            .font(.system(size: 36))
-                            .foregroundColor(.fitspinTangerine)
-                    }
-                    Button {
-                        isPlaying = true
-                        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-                            elapsedTime += 1
-                        }
-                    } label: {
+            } else {
+                Color.gray.opacity(0.3)
+                    .frame(height: 220)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .overlay(
                         Image(systemName: "play.circle.fill")
-                            .font(.system(size: 36))
-                            .foregroundColor(.fitspinBlue)
-                    }
-                    Text(timeString(from: elapsedTime))
-                        .font(.subheadline.monospacedDigit())
-                        .foregroundColor(.fitspinOffWhite)
-                }
-                .padding(.bottom, 8)
+                            .font(.system(size: 48))
+                            .foregroundColor(.white.opacity(0.7))
+                    )
             }
-            .padding()
 
-            // Like button
-            Button {
-                isLiked.toggle()
-            } label: {
-                Image(systemName: isLiked ? "heart.fill" : "heart")
-                    .font(.title2)
-                    .foregroundColor(isLiked ? .fitspinTangerine : .fitspinOffWhite)
+            // 📋 Info + Heart
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(workout.category.uppercased())
+                        .font(.caption2)
+                        .foregroundColor(.fitspinBlue)
+
+                    HStack {
+                        Text(workout.name)
+                            .font(.headline)
+                            .foregroundColor(.white)
+
+                        Spacer()
+
+                        ZStack(alignment: .topTrailing) {
+                            Button(action: {
+                                favouritesStore.toggle(workout)
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                                    animateHeart = true
+                                    toastMessage = favouritesStore.isFavourite(workout) ? "Added to Favourites" : "Removed from Favourites"
+                                    showToast = true
+                                }
+
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                    animateHeart = false
+                                }
+
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                    withAnimation { showToast = false }
+                                }
+                            }) {
+                                Image(systemName: favouritesStore.isFavourite(workout) ? "heart.fill" : "heart")
+                                    .resizable()
+                                    .frame(width: 26, height: 24)
+                                    .foregroundColor(favouritesStore.isFavourite(workout) ? .fitspinTangerine : .gray)
+                                    .scaleEffect(animateHeart ? 1.3 : 1.0)
+                                    .shadow(color: favouritesStore.isFavourite(workout) ? .fitspinTangerine.opacity(0.6) : .clear,
+                                            radius: animateHeart ? 6 : 0)
+                            }
+
+                            if !favouritesStore.isFavourite(workout) {
+                                Image(systemName: "plus.circle.fill")
+                                    .font(.system(size: 10))
+                                    .foregroundColor(.fitspinTangerine)
+                                    .background(Color.black.opacity(0.8).clipShape(Circle()))
+                                    .offset(x: 8, y: -4)
+                            }
+                        }
+                    }
+
+                    if !workout.equipment.isEmpty {
+                        Text("Equipment: \(workout.equipment.joined(separator: ", "))")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                }
             }
-            .offset(x: -16, y: -16)
+
+            // ✅ Toast Feedback
+            if showToast {
+                Text(toastMessage)
+                    .font(.caption)
+                    .padding(8)
+                    .background(Color.fitspinTangerine.opacity(0.95))
+                    .cornerRadius(8)
+                    .foregroundColor(.white)
+                    .padding(.top, 4)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
         }
+        .padding(.vertical, 12)
+        .padding(.horizontal, 12)
+        .background(Color.gray.opacity(0.13))
+        .cornerRadius(6)
+        .onDisappear {
+            pause()
+            player?.pause()
+        }
+    }
+
+    // MARK: - Timer Logic
+    private func start() {
+        isPlaying = true
+        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+            elapsedTime += 1
+        }
+    }
+
+    private func pause() {
+        isPlaying = false
+        timer?.invalidate()
+    }
+
+    private func reset() {
+        elapsedTime = 0
+        timer?.invalidate()
     }
 
     private func timeString(from seconds: TimeInterval) -> String {
@@ -116,38 +147,24 @@ struct WorkoutCardView: View {
     }
 }
 
+// MARK: - Preview
+#if DEBUG
 struct WorkoutCardView_Previews: PreviewProvider {
-    @State static var playing = false
-    @State static var time: TimeInterval = 0
-
     static var previews: some View {
-        WorkoutCardView(
-            workout: Workout(
-                apiId:       101,
-                title:       "Squats",
-                type:        "Strength",
-                imageName:   "squats",
-                videoURL:    nil,
-                suggestions: ["Use weights", "Keep back straight"],
-                sets:        4,
-                reps:        10,
-                equipment:   ["Bodyweight", "Dumbbells"],
-                description: "Squats are a foundational movement for building lower body strength.",
-                muscleIds:   [10, 12]
-            ),
-            isPlaying: $playing,
-            elapsedTime: $time,
-            onReset: {
-                playing = false
-                time = 0
-            }
-        )
+        WorkoutCardView(workout: Workout(
+            exerciseId: 301,
+            name: "Barbell Lunges Standing",
+            description: "Lower body strength with form focus.",
+            videoURL: URL(string: "https://wger.de/media/exercise-images/65/barbell-lunges-1.jpg"),
+            equipment: ["Barbell"],
+            category: "Legs",
+            comments: []
+        ))
         .preferredColorScheme(.dark)
-        .frame(width: 320, height: 450)
+        .environmentObject(FavouritesStore())
     }
 }
+#endif
 
 
 
-
-///

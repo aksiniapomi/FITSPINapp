@@ -1,51 +1,48 @@
-//
 //  FITSPIN_appApp.swift
 //  FITSPIN app
 //
 //  Created by Xenia Uni Account on 04/04/2025.
-//
 
-//delegate that bootstraps Firebase
 import SwiftUI
 import FirebaseCore
 
 class AppDelegate: NSObject, UIApplicationDelegate {
-  func application(
-    _ application: UIApplication,
-    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
-  ) -> Bool {
-    if FirebaseApp.app() == nil {
-      FirebaseApp.configure()
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+    ) -> Bool {
+        if FirebaseApp.app() == nil {
+            FirebaseApp.configure()
+        }
+        return true
     }
-    return true
-  }
 }
 
 @main
 struct FITSPIN_appApp: App {
-    //bootstrap Firebase
-  @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    
-    //Create one at State object for the whole app
-  @StateObject private var authVM = AuthViewModel()
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
-  var body: some Scene {
-    WindowGroup {
-      Group {
-        if authVM.user == nil {
-            NavigationStack {
-                SignInView()
+    // Shared ViewModels / Stores
+    @StateObject private var authVM = AuthViewModel()
+    @StateObject private var workoutStore = WorkoutStore()
+    @StateObject private var favouritesStore = FavouritesStore()
+
+    var body: some Scene {
+        WindowGroup {
+            Group {
+                if authVM.user == nil {
+                    NavigationStack {
+                        SignInView()
+                    }
+                } else {
+                    BottomTabView()
+                }
             }
+            .environmentObject(authVM)
+            .environmentObject(workoutStore)
+            .environmentObject(favouritesStore)
+            .preferredColorScheme(.dark)
         }
- 
-        else {
-          BottomTabView()
-        }
-      }
-        //inject the AuthViewModel into the environment
-      .environmentObject(authVM)
-      .preferredColorScheme(.dark)
     }
-  }
 }
 

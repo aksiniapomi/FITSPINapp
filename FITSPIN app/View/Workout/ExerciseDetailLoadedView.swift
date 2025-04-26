@@ -6,239 +6,257 @@
 //
 import SwiftUI
 import AVKit
-import Combine
 
 struct ExerciseDetailLoadedView: View {
-    let exercise: Workout
-
-    // MARK: – State
-    @State private var isFavourite = false
-    @State private var timerActive = false
-    @State private var timeRemaining = 30
-
-    // A Combine publisher that fires every second
-    private let timer = Timer
-        .publish(every: 1, on: .main, in: .common)
-        .autoconnect()
+    let workout: Workout
 
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-                videoSection
-                titleSection
-                equipmentSection
-                descriptionSection
-                timerSection
+                // 🎥 Video
+                if let url = workout.videoURL {
+                    VideoPlayer(player: AVPlayer(url: url))
+                        .frame(height: 280)
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                        .padding(.horizontal)
+                }
+
+                // 🏷️ Name + Category
+                VStack(alignment: .leading, spacing: 12) {
+                    Text(workout.name)
+                        .font(.title.bold())
+                        .foregroundColor(.white)
+
+                    HStack {
+                        Text(workout.category.uppercased())
+                            .font(.caption)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 4)
+                            .background(Color.blue.opacity(0.15))
+                            .cornerRadius(8)
+
+                        Spacer()
+                        Text("\(workout.equipment.count) Equipment")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .padding(.horizontal)
+
+                // 🧰 Equipment First
+                if !workout.equipment.isEmpty {
+                    sectionCard(title: "You'll Need") {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 16) {
+                                ForEach(workout.equipment, id: \.self) { item in
+                                    EquipmentIcon(name: item)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // 📄 Description
+                sectionCard(title: "Description") {
+                    Text(cleanHTML(workout.description))
+                        .foregroundColor(.white)
+                }
+
+                // 💬 Tips
+                if !workout.comments.isEmpty {
+                    sectionCard(title: "Tips") {
+                        ForEach(workout.comments, id: \.self) { tip in
+                            Text("💡 \(tip)")
+                                .foregroundColor(.white)
+                        }
+                    }
+                }
+
+                // ⏱️ Slim Timer
+                sectionCard(title: "Timer") {
+                    ExerciseTimerView(
+                        exerciseName: workout.name,
+                        equipment: workout.equipment,
+                    )
+                    .frame(height: 150)
+                }
             }
-            .padding()
+            .padding(.vertical)
         }
         .background(Color.fitspinBackground.ignoresSafeArea())
-        .onReceive(timer) { _ in
-            guard timerActive, timeRemaining > 0 else { return }
-            timeRemaining -= 1
-            if timeRemaining == 0 {
-                timerActive = false
-            }
-        }
     }
 
-    // MARK: – Video Preview
-    private var videoSection: some View {
-        ZStack {
-            if let url = exercise.videoURL {
-                VideoPlayer(player: AVPlayer(url: url))
-                    .frame(width: 420, height: 320)
-                    .cornerRadius(20)
-            } else {
-                Color.gray.opacity(0.2)
-                    .frame(width: 420, height: 320)
-                    .overlay {
-                        Image(systemName: "play.circle.fill")
-                            .resizable()
-                            .frame(width: 60, height: 60)
-                            .foregroundColor(.white)
-                    }
-            }
-        }
-        .shadow(radius: 5)
-    }
-
-    // MARK: – Title & Type
-    private var titleSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(exercise.title)
-                .font(.largeTitle.bold())
-                .foregroundColor(.primary)
-
-            Text(exercise.type.uppercased())
-                .font(.caption)
-                .padding(.vertical, 4)
-                .padding(.horizontal, 8)
-                .background(Color.blue.opacity(0.1))
-                .cornerRadius(8)
-        }
-    }
-
-    // MARK: – Equipment
-    private var equipmentSection: some View {
-        sectionCard(title: "You'll Need") {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 24) {
-                    ForEach(exercise.equipment, id: \.self) { item in
-
-                        // Bodyweight / None fallback
-                        if item.lowercased() == "bodyweight" || item.lowercased() == "none" {
-                            VStack(spacing: 8) {
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color.gray, lineWidth: 2)
-                                    .frame(width: 80, height: 80)
-
-                                Text("Bodyweight")
-                                    .font(.caption)
-                                    .foregroundColor(.primary)
-                            }
-                            .frame(width: 80)
-
-                        // Asset images as squares
-                        } else if let name = equipmentAssets
-                                        .first(where: { $0.lowercased() == item.lowercased() }) {
-                            VStack(spacing: 8) {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .fill(Color(.systemBackground))
-                                        .stroke(Color.gray, lineWidth: 2)
-                                        .frame(width: 80, height: 80)
-                                        .shadow(radius: 2)
-
-                                    Image(name)
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                        .frame(width: 80, height: 80)
-                                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                                }
-
-                                Text(item)
-                                    .font(.caption)
-                                    .foregroundColor(.primary)
-                            }
-                            .frame(width: 80)
-                        }
-
-                    }
-                }
-                .padding(.vertical, 4)
-            }
-        }
-    }
-
-    // MARK: – Description
-    private var descriptionSection: some View {
-        sectionCard(title: "Description") {
-            Text(exercise.description)
-                .foregroundColor(.primary)
-        }
-    }
-
-    // MARK: – Timer & Controls
-    private var timerSection: some View {
-        sectionCard(title: "Timer & Controls") {
-            VStack(spacing: 16) {
-                ProgressView(value: Double(exercise.sets * exercise.reps - timeRemaining), total: Double(exercise.sets * exercise.reps))
-                    .scaleEffect(x: 1, y: 1.5)
-                    .accentColor(.fitspinYellow)
-
-                Text("Time Remaining: \(timeRemaining)s")
-                    .font(.title3)
-
-                HStack(spacing: 32) {
-                    Button {
-                        withAnimation { isFavourite.toggle() }
-                    } label: {
-                        Image(systemName: isFavourite ? "heart.fill" : "heart")
-                            .font(.title2)
-                            .foregroundColor(isFavourite ? .red : .gray)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.fitspinYellow)
-
-                    Button {
-                        timerActive = true
-                    } label: {
-                        Text("Start").foregroundColor(.black)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.fitspinYellow)
-
-                    Button {
-                        timerActive = false
-                    } label: {
-                        Text("Pause").foregroundColor(.black)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.fitspinYellow)
-
-                    Button {
-                        timeRemaining = exercise.sets * exercise.reps
-                    } label: {
-                        Text("Reset").foregroundColor(.black)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.fitspinYellow)
-                }
-            }
-        }
-    }
-
-    // MARK: – Helpers
-
-    private func sectionCard<Content: View>(
-        title: String,
-        @ViewBuilder content: () -> Content
-    ) -> some View {
+    // MARK: - Section Card
+    private func sectionCard<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(title).font(.headline)
+            Text(title)
+                .font(.headline)
+                .foregroundColor(.fitspinYellow)
             content()
         }
         .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.secondarySystemBackground))
         .cornerRadius(16)
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.gray, lineWidth: 1)
-        )
+        .padding(.horizontal)
     }
 
-    // Only these asset names will be shown
-    private let equipmentAssets = [
-        "barbell",
-        "bench",
-        "dumbbell",
-        "gymMat",
-        "InclineBench",
-        "Kettlebell",
-        "Pull-upBar",
-        "SZ-Bar"
-    ]
+    // MARK: - HTML Cleaner
+    private func cleanHTML(_ html: String) -> String {
+        html.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
+            .replacingOccurrences(of: "&nbsp;", with: " ")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
 }
 
-// MARK: – Preview
+// MARK: - Equipment Icon
+struct EquipmentIcon: View {
+    let name: String
 
+    var body: some View {
+        VStack(spacing: 6) {
+            Image(name)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 60, height: 60)
+                .background(Color.gray.opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+
+            Text(name)
+                .font(.caption2)
+                .foregroundColor(.white)
+                .frame(width: 70)
+                .lineLimit(1)
+        }
+    }
+}
+
+// MARK: - Timer View
+struct ExerciseTimerView: View {
+    @State private var remainingTime: Int = 30
+    @State private var selectedTime: Int = 30
+    @State private var isRunning: Bool = false
+    @State private var timer: Timer?
+
+    let exerciseName: String
+    let equipment: [String]
+
+    var body: some View {
+        VStack(spacing: 8) {
+            // ⏱️ Time Display
+            Text(timeString(from: remainingTime))
+                .font(.system(size: 28, weight: .medium, design: .monospaced))
+                .foregroundColor(.white)
+                .padding(.vertical, 6)
+                .frame(maxWidth: .infinity)
+                .background(Color.black.opacity(0.2))
+                .cornerRadius(12)
+
+            // 🔧 Slider
+            VStack(spacing: 4) {
+                Text("Duration: \(selectedTime) sec")
+                    .font(.caption2)
+                    .foregroundColor(.gray)
+
+                Slider(value: Binding(
+                    get: { Double(selectedTime) },
+                    set: { newValue in
+                        selectedTime = Int(newValue)
+                        if !isRunning {
+                            remainingTime = selectedTime
+                        }
+                    }
+                ), in: 10...180, step: 5)
+                .accentColor(.fitspinYellow)
+            }
+
+            // 🎮 Controls (Smaller)
+            HStack(spacing: 20) {
+                Button(action: reset) {
+                    Image(systemName: "gobackward")
+                }
+
+                Button(action: toggleTimer) {
+                    Image(systemName: isRunning ? "pause.fill" : "play.fill")
+                }
+
+                Button(action: stopNow) {
+                    Image(systemName: "stop.fill")
+                }
+            }
+            .font(.body)
+            .foregroundColor(.white)
+            .padding(.vertical, 6)
+            .frame(maxWidth: .infinity)
+            .background(Color.black.opacity(0.1))
+            .cornerRadius(10)
+        }
+        .padding(8)
+        .background(Color.black.opacity(0.2))
+        .cornerRadius(16)
+    }
+
+
+    // MARK: - Timer Logic
+    private func toggleTimer() {
+        isRunning.toggle()
+        isRunning ? startTimer() : stopTimer()
+    }
+
+    private func startTimer() {
+        stopTimer()
+        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+            if remainingTime > 0 {
+                remainingTime -= 1
+            } else {
+                stopTimer()
+            }
+        }
+    }
+
+    private func stopTimer() {
+        timer?.invalidate()
+        timer = nil
+    }
+
+    private func stopNow() {
+        stopTimer()
+        remainingTime = 0
+        isRunning = false
+    }
+
+    private func reset() {
+        stopTimer()
+        remainingTime = selectedTime
+        isRunning = false
+
+    }
+
+    private func timeString(from seconds: Int) -> String {
+        String(format: "%02d:%02d", seconds / 60, seconds % 60)
+    }
+}
+#if DEBUG
 struct ExerciseDetailLoadedView_Previews: PreviewProvider {
     static var previews: some View {
-        ExerciseDetailLoadedView(exercise: Workout(
-            apiId:      1,
-            title:      "Squats",
-            type:       "Strength",
-            imageName:  "",
-            videoURL:   nil,
-            suggestions: ["Keep your chest up", "Drive through your heels"],
-            sets:       4,
-            reps:       12,
-            equipment:  ["Barbell", "Bodyweight"],
-            description: "Squats strengthen your lower body and core.",
-            muscleIds:  [10, 15]
+        ExerciseDetailLoadedView(workout: Workout(
+            exerciseId: 123,
+            name: "Barbell Lunges Standing",
+            description: """
+                Put barbell on the back of your shoulders. Stand upright, then take the first step forward. \
+                Step should bring you forward so that your supporting leg’s knee can touch the floor. \
+                Then stand back up and repeat with the other leg. Remember to keep good posture.
+            """,
+            videoURL: URL(string: "https://wger.de/media/exercise-images/65/barbell-lunges-1.jpg"),
+            equipment: ["Barbell"],
+            category: "Legs",
+            comments: [
+                "Keep back straight at all times.",
+                "Control your step to avoid knee stress.",
+                "Engage your glutes during the rise."
+            ]
         ))
         .preferredColorScheme(.dark)
     }
 }
+#endif
+

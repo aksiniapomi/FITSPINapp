@@ -194,6 +194,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				5C3A94022DBA4B8B00272BC2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				C6D725572DBD333C00E5DC77 /* XCRemoteSwiftPackageReference "ConfettiSwiftUI" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 5C30A6C92DA035C2009EC553 /* Products */;
@@ -394,8 +395,6 @@
 				DEVELOPMENT_ASSET_PATHS = "\"FITSPIN app/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "FITSPIN-app-Info.plist";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to show local weather";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -433,8 +432,6 @@
 				DEVELOPMENT_ASSET_PATHS = "\"FITSPIN app/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "FITSPIN-app-Info.plist";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to show local weather";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -595,6 +592,14 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 11.12.0;
+			};
+		};
+		C6D725572DBD333C00E5DC77 /* XCRemoteSwiftPackageReference "ConfettiSwiftUI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/simibac/ConfettiSwiftUI";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.3;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
