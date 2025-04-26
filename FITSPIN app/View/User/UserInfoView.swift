@@ -8,14 +8,17 @@
 import SwiftUI
 
 struct UserInfoView: View {
-    @State private var age: Int = 25
-    @State private var height: Int = 170
-    @State private var weight: Int = 70
-    @State private var fitnessLevel: String = "Beginner"
+    @Binding var age: Int
+    @Binding var height: Int
+    @Binding var weight: Int
+    @Binding var fitnessLevel: String
+    
+    @Environment(\.dismiss) private var dismiss
     
     let fitnessLevels = ["Beginner", "Intermediate", "Advanced"]
-
+    
     var body: some View {
+        
         ZStack {
             Color.fitspinBackground.ignoresSafeArea()
             
@@ -58,11 +61,13 @@ struct UserInfoView: View {
                     }
                 }
                 .padding(.horizontal)
+                
                 Spacer()
                 
                 // Confirm
                 Button("Confirm") {
-                    // Navigate to FitnessGoalsView
+                    // Navigate to Account
+                    dismiss()
                 }
                 .buttonStyle(FPOutlineButtonStyle())
                 .padding(.horizontal)
@@ -70,53 +75,72 @@ struct UserInfoView: View {
                 Spacer()
             }
         }
-        .navigationBarHidden(true)
-    }
-}
-
-//A reusable stepper row with label +/– inside a rounded rectangle
-private struct StepperField: View {
-    let label: String
-    @Binding var value: Int
-    let range: ClosedRange<Int>
-    
-    var body: some View {
-        HStack {
-            Text(label)
-                .foregroundColor(.fitspinBackground)
-            Spacer()
-            HStack(spacing: 8) {
-                Button { if value > range.lowerBound { value -= 1 }
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)   
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    dismiss()
                 } label: {
-                    Image(systemName: "minus.circle")
-                        .font(.title3)
-                        .foregroundColor(.fitspinBackground)
-                }
-                
-                Text("\(value)")
-                .font(.body)
-                .frame(minWidth:32)
-                
-                Button { if value < range.upperBound { value += 1 }
-                } label: {
-                    Image(systemName: "plus.circle")
-                        .font(.title3)
-                        .foregroundColor(.fitspinBackground)
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("Account")
+                    }
+                    .foregroundColor(.fitspinYellow)
                 }
             }
-            .foregroundColor(.fitspinBackground)
         }
-        .padding()
-        .background(Color.fitspinInputBG)
-        .cornerRadius(8)
+    }
+    
+    
+    //A reusable stepper row with label +/– inside a rounded rectangle
+    private struct StepperField: View {
+        let label: String
+        @Binding var value: Int
+        let range: ClosedRange<Int>
+        
+        var body: some View {
+            HStack {
+                Text(label)
+                    .foregroundColor(.fitspinBackground)
+                Spacer()
+                HStack(spacing: 8) {
+                    Button { if value > range.lowerBound { value -= 1 }
+                    } label: {
+                        Image(systemName: "minus.circle")
+                            .font(.title3)
+                            .foregroundColor(.fitspinBackground)
+                    }
+                    
+                    Text("\(value)")
+                        .font(.body)
+                        .frame(minWidth:32)
+                    
+                    Button { if value < range.upperBound { value += 1 }
+                    } label: {
+                        Image(systemName: "plus.circle")
+                            .font(.title3)
+                            .foregroundColor(.fitspinBackground)
+                    }
+                }
+                .foregroundColor(.fitspinBackground)
+            }
+            .padding()
+            .background(Color.fitspinInputBG)
+            .cornerRadius(8)
+        }
     }
 }
-
-struct UserInfoView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationStack {
-            UserInfoView()
+    struct UserInfoView_Previews: PreviewProvider {
+        static var previews: some View {
+            NavigationStack {
+                //dummy data for preview
+                UserInfoView(age: .constant(25),
+                             height: .constant(170),
+                             weight: .constant(70),
+                             fitnessLevel: .constant("Beginner"))
                 .preferredColorScheme(.dark)
+            }
         }
     }
-}
+
