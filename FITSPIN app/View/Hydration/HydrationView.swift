@@ -9,11 +9,11 @@ import SwiftUI
 
 struct HydrationView: View {
     
-    //Inject HomeViewModel so to read weather
-    @EnvironmentObject private var homeVM: HomeViewModel
-    
     @State private var currentDate = Date()
-    @State private var currentIntake: Double = 1.1
+    
+    //Inject HomeViewModel and HydrationVM so to read weather and hydration intake
+    @EnvironmentObject private var homeVM: HomeViewModel
+    @EnvironmentObject private var hydVM: HydrationViewModel
     
     //computed var dailyGoal taking weather into account
     private var dailyGoal: Double {
@@ -35,11 +35,11 @@ struct HydrationView: View {
         }
         switch cond {
         case .clear:
-            return "Sunny day-drink extra water!"
+            return "Sunny day-drink water!"
         case .partlyCloudy:
             return "A bit cloudy-keep sipping on water"
         case .rain:
-            return "Rainy weather—indoor workouts, remember to hydrate"
+            return "Rainy weather—hydrate indoors"
         case .snow:
             return "Cold out there-warm up and hydrate"
         case .thunderstorm:
@@ -58,8 +58,26 @@ struct HydrationView: View {
         fmt.dateFormat = "LLLL yyyy"
         return fmt.string(from: currentDate)
     }
+    
+    //how much you have to drink before the drop starts filling
+    /*   private let fillThreshold: Double = 0.5
+     
+     private var fillFraction: CGFloat {
+     // raw fraction of your total goal
+     let raw = hydVM.todayIntake / dailyGoal
+     
+     // don’t show any fill until you hit the threshold
+     guard hydVM.todayIntake >= fillThreshold else {
+     return 0
+     }
+     // once you’re past the threshold, show the true proportion
+     return CGFloat(min(1, max(0, raw)))
+     }
+     
+     */
+    
     private var fillFraction: CGFloat {
-        min(1, max(0, currentIntake / dailyGoal))
+        CGFloat(min(1, hydVM.todayIntake / dailyGoal))
     }
     
     var body: some View {
@@ -100,8 +118,8 @@ struct HydrationView: View {
                     //only show when dailyGoal > base (i.e. weather bumped it up)
                     if dailyGoal > 2.2 {
                         Text("Because of today’s weather conditions you need extra water!")
-                            .font(.subheadline)
-                            //.italic()
+                            .font(.caption)
+                        //.italic()
                             .foregroundColor(.fitspinYellow.opacity(0.9))
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 40)
@@ -168,7 +186,8 @@ struct HydrationView: View {
                                     comps.day = day
                                     if let d = Calendar.current.date(from: comps) {
                                         currentDate = d
-                                        // load intake for that day...
+                                        // load intake for that day
+                                        Task { await hydVM.loadIntake(on: d) }
                                     }
                                 }
                             }
@@ -178,29 +197,26 @@ struct HydrationView: View {
                     
                     // Right arrow
                     Button {
-                        // next month
                         currentDate = Calendar.current.date(
-                            byAdding: .month,
-                            value: +1,
-                            to: currentDate
+                            byAdding: .month, value: +1, to: currentDate
                         ) ?? currentDate
+                        Task { await hydVM.loadHistory(for: currentDate) }
                     } label: {
                         Image(systemName: "chevron.right")
-                            .font(.title3)
-                            .foregroundColor(.fitspinOffWhite)
                     }
+                    .foregroundColor(.fitspinOffWhite)
                 }
                 .padding(.horizontal, 16)
                 
                 //Logged intake with dynamic dailyGoal
-                Text(String(format: "Intake Logged: %.1f / %.1f L", currentIntake, dailyGoal))
+                Text(String(format: "Intake Logged: %.1f / %.1f L", hydVM.todayIntake, dailyGoal))
                     .font(.subheadline)
                     .foregroundColor(.fitspinOffWhite)
                 
                 //Add water button
                 Button {
-                    currentIntake = min(dailyGoal, currentIntake + 0.1)
-                    // save for currentDate...
+                    let next = min(dailyGoal, hydVM.todayIntake + 0.1)
+                    Task { await hydVM.log(next, on: currentDate) }
                 } label: {
                     Image(systemName: "plus")
                         .font(.title2)
@@ -216,30 +232,38 @@ struct HydrationView: View {
             }
             .padding(.bottom, 80)  // room for tab bar
         }
+        .onAppear {
+            // initial load for today
+            Task {
+                await hydVM.loadHistory(for: currentDate)
+                await hydVM.loadIntake(on: currentDate)
+            }
+        }
     }
-}
-
-fileprivate struct DayCircle: View {
-    let day: Int
-    let isSelected: Bool
     
-    var body: some View {
-        Text("\(day)")
-            .font(.subheadline)
-            .fontWeight(isSelected ? .bold : .regular)
-            .foregroundColor(isSelected ? .fitspinOffWhite : .fitspinBackground)
-            .frame(width: 36, height: 36)
-            .background(
-                Circle().fill(isSelected ? Color.fitspinBlue : .fitspinOffWhite)
-            )
-    }
-}
-
-struct HydrationView_Previews: PreviewProvider {
-    static var previews: some View {
-        HydrationView()
-            .environmentObject(HomeViewModel())
-            .preferredColorScheme(.dark)
+    fileprivate struct DayCircle: View {
+        let day: Int
+        let isSelected: Bool
         
+        var body: some View {
+            Text("\(day)")
+                .font(.subheadline)
+                .fontWeight(isSelected ? .bold : .regular)
+                .foregroundColor(isSelected ? .fitspinOffWhite : .fitspinBackground)
+                .frame(width: 36, height: 36)
+                .background(
+                    Circle().fill(isSelected ? Color.fitspinBlue : .fitspinOffWhite)
+                )
+        }
+    }
+    
+    struct HydrationView_Previews: PreviewProvider {
+        static var previews: some View {
+            HydrationView()
+                .environmentObject(HomeViewModel())
+                .environmentObject(HydrationViewModel())
+                .preferredColorScheme(.dark)
+            
+        }
     }
 }

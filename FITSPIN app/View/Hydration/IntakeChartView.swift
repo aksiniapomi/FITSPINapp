@@ -8,28 +8,11 @@
 import SwiftUI
 import Charts
 
-// daily‐intake model
-struct DailyIntake: Identifiable {
-    let id = UUID()
-    let date: Date
-    let liters: Double
-}
-
-// A sample month’s worth of data
-fileprivate let sampleIntake: [DailyIntake] = {
-    let calendar = Calendar.current
-    let today = Date()
-    let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: today))!
-    return (0..<calendar.range(of: .day, in: .month, for: today)!.count).map { offset in
-        let d = calendar.date(byAdding: .day, value: offset, to: startOfMonth)!
-        // random demo data between 1.0 and 2.5L
-        return DailyIntake(date: d, liters: Double.random(in: 1...2.5))
-    }
-}()
-
 struct IntakeChartView: View {
-    @State private var data: [DailyIntake] = sampleIntake
-    @State private var selectedMonth: Date = Date()
+    @EnvironmentObject private var hydVM: HydrationViewModel
+    @Environment(\.dismiss) private var dismiss
+    
+    @State private var selectedMonth = Date()
     
     private var monthName: String {
         let fmt = DateFormatter()
@@ -37,20 +20,33 @@ struct IntakeChartView: View {
         return fmt.string(from: selectedMonth)
     }
     
+    //Pull the VM’s published data for the currently selected month
+    private var data: [DailyIntake] {
+        hydVM.intakeHistory(for: selectedMonth)
+    }
+    
     var body: some View {
-        
         ZStack {
             Color.fitspinBackground.ignoresSafeArea()
             
             VStack(alignment: .leading, spacing: 16) {
                 
+                HStack {
+                    Spacer()
+                    Button("Dismiss") {
+                        dismiss()
+                    }
+                    .font(.headline)
+                    .foregroundColor(.fitspinYellow)
+                }
+                
                 Spacer()
-                // Header
+                
                 Text("Water Intake History")
                     .font(.title2).bold()
                     .foregroundColor(.fitspinBlue)
                 
-                // Month selector
+                // month selector
                 HStack {
                     Button {
                         changeMonth(by: -1)
@@ -67,6 +63,7 @@ struct IntakeChartView: View {
                         .foregroundColor(.fitspinYellow)
                     
                     Spacer()
+                    
                     Button {
                         changeMonth(by: +1)
                     } label: {
@@ -76,7 +73,7 @@ struct IntakeChartView: View {
                     .foregroundColor(.fitspinYellow)
                 }
                 
-                // The Chart
+                // the chart
                 Chart(data) { entry in
                     BarMark(
                         x: .value("Day", entry.date, unit: .day),
@@ -85,7 +82,7 @@ struct IntakeChartView: View {
                     .foregroundStyle(Color.fitspinBlue.gradient)
                 }
                 .chartXAxis {
-                    AxisMarks(values: .stride(by: .day, count: 5)) { _ in
+                    AxisMarks(values: .stride(by: .day, count: 5)) {
                         AxisGridLine()
                         AxisTick()
                         AxisValueLabel(format: .dateTime.day())
@@ -93,7 +90,7 @@ struct IntakeChartView: View {
                     }
                 }
                 .chartYAxis {
-                    AxisMarks(position: .leading) { _ in
+                    AxisMarks(position: .leading) {
                         AxisGridLine()
                         AxisTick()
                         AxisValueLabel()
@@ -105,22 +102,29 @@ struct IntakeChartView: View {
                 Spacer()
             }
             .padding()
-            .background(Color.fitspinBackground.ignoresSafeArea())
+        }
+        .onAppear {
+            Task {
+                // load this month’s data on first appear
+                await hydVM.loadHistory(for: selectedMonth)
+            }
         }
     }
     
+    
     private func changeMonth(by months: Int) {
-        let cal = Calendar.current
-        if let newDate = cal.date(byAdding: .month, value: months, to: selectedMonth) {
+        if let newDate = Calendar.current.date(byAdding: .month, value: months, to: selectedMonth) {
             selectedMonth = newDate
-            // reload `data` from your storage for that month
+            Task { await hydVM.loadHistory(for: selectedMonth) }
         }
     }
+    
 }
 
 struct IntakeChartView_Previews: PreviewProvider {
     static var previews: some View {
         IntakeChartView()
+            .environmentObject(HydrationViewModel())
             .preferredColorScheme(.dark)
     }
 }

@@ -11,14 +11,17 @@ struct AccountView: View {
     
     @EnvironmentObject private var authVM: AuthViewModel
     @EnvironmentObject private var homeVM: HomeViewModel
+    @EnvironmentObject private var hydVM:  HydrationViewModel
+    
+    @State private var showingChart = false
     
     private var displayName: String {
-          authVM.user?.displayName ?? "Guest"
-      }
-      
-      private var emailAddress: String {
-          authVM.user?.email ?? ""
-      }
+        authVM.user?.displayName ?? "Guest"
+    }
+    
+    private var emailAddress: String {
+        authVM.user?.email ?? ""
+    }
     
     var body: some View {
         ZStack {
@@ -43,7 +46,7 @@ struct AccountView: View {
                         .foregroundColor(.fitspinOffWhite)
                     
                     Spacer()
-                
+                    
                     Image(systemName: "line.horizontal.3")
                         .opacity(0)
                 }
@@ -89,6 +92,7 @@ struct AccountView: View {
                 
                 Spacer()
                 
+                //menu rows
                 VStack(spacing: 30) {
                     AccountRow(
                         icon: "checkmark.square",
@@ -108,13 +112,12 @@ struct AccountView: View {
                         value: "Muscle Gain",
                         valueColor: .fitspinBlue
                     )
-                    AccountRow(
-                        icon: "drop",
-                        label: "Hydration",
-                        value: "On",
-                        valueColor: .fitspinBlue,
-                        trailingIcon: "calendar"
-                    )
+                    AccountRow(icon: "drop",
+                               label: "Hydration",
+                               value: String(format: "%.1f L", hydVM.todayIntake),
+                               trailingIcon: "calendar")
+                    .onTapGesture { showingChart = true }
+                    
                     AccountRow(
                         icon: "bell.badge.fill",
                         label: "Notifications",
@@ -154,6 +157,11 @@ struct AccountView: View {
                 .padding(.bottom, 12)
                 .background(Color.fitspinBackground)
             }
+        }
+        // Present the chart when needed
+        .sheet(isPresented: $showingChart) {
+            IntakeChartView()
+                .environmentObject(hydVM)
         }
     }
 }
@@ -195,5 +203,6 @@ struct AccountView_Previews: PreviewProvider {
             .preferredColorScheme(.dark)
             .environmentObject(AuthViewModel())
             .environmentObject(HomeViewModel())
+            .environmentObject(HydrationViewModel())
     }
 }

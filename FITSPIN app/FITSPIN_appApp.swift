@@ -10,43 +10,45 @@ import SwiftUI
 import FirebaseCore
 
 class AppDelegate: NSObject, UIApplicationDelegate {
-  func application(
-    _ application: UIApplication,
-    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
-  ) -> Bool {
-    if FirebaseApp.app() == nil {
-      FirebaseApp.configure()
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+    ) -> Bool {
+        if FirebaseApp.app() == nil {
+            FirebaseApp.configure()
+        }
+        return true
     }
-    return true 
-  }
 }
 
 @main
 struct FITSPIN_appApp: App {
     //bootstrap Firebase
-  @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     
     //Create one at State object for the whole app
-  @StateObject private var authVM = AuthViewModel()
-  @StateObject private var homeVM = HomeViewModel() //all the tabs now read homeVM.weather
-
-  var body: some Scene {
-    WindowGroup {
-      Group {
-          //if not signed in, show the SignInView
-        if authVM.user == nil {
-            NavigationStack {
-                SignInView()
+    @StateObject private var authVM = AuthViewModel()
+    @StateObject private var homeVM = HomeViewModel() //all the tabs now read homeVM.weather
+    @StateObject private var hydVM = HydrationViewModel()
+    
+    var body: some Scene {
+        WindowGroup {
+            Group {
+                //if not signed in, show the SignInView
+                if authVM.user == nil {
+                    NavigationStack {
+                        SignInView()
+                    }
+                } else {
+                    BottomTabView()
+                }
             }
-        } else {
-          BottomTabView()
+            //inject the AuthViewModel into the environment
+            .environmentObject(authVM)
+            .environmentObject(homeVM)
+            .environmentObject(hydVM)
+            .preferredColorScheme(.dark)
         }
-      }
-        //inject the AuthViewModel into the environment
-      .environmentObject(authVM)
-      .environmentObject(homeVM)
-      .preferredColorScheme(.dark)
     }
-  }
 }
 
