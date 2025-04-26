@@ -107,7 +107,7 @@ struct WorkoutCardView: View {
                     .padding(8)
                     .background(Color.fitspinTangerine.opacity(0.95))
                     .cornerRadius(8)
-                    .foregroundColor(.white)
+                    .foregroundColor(.fitspinBackground)
                     .padding(.top, 4)
                     .transition(.move(edge: .top).combined(with: .opacity))
             }
@@ -147,24 +147,6 @@ struct WorkoutCardView: View {
     }
 }
 
-// MARK: - Preview
-#if DEBUG
-struct WorkoutCardView_Previews: PreviewProvider {
-    static var previews: some View {
-        WorkoutCardView(workout: Workout(
-            exerciseId: 301,
-            name: "Barbell Lunges Standing",
-            description: "Lower body strength with form focus.",
-            videoURL: URL(string: "https://wger.de/media/exercise-images/65/barbell-lunges-1.jpg"),
-            equipment: ["Barbell"],
-            category: "Legs",
-            comments: []
-        ))
-        .preferredColorScheme(.dark)
-        .environmentObject(FavouritesStore())
-    }
-}
-#endif
 
 
 

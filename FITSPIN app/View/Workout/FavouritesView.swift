@@ -4,13 +4,11 @@
 //
 //  Created by Derya Baglan on 21/04/2025.
 //
-
-
 import SwiftUI
 
 struct FavouritesView: View {
     @EnvironmentObject var workoutStore: WorkoutStore
-    @EnvironmentObject var FavouritesStore: FavouritesStore
+    @EnvironmentObject var favouritesStore: FavouritesStore
     @State private var sortOption: SortOption = .name
     @State private var showDetail: Workout?
 
@@ -22,7 +20,7 @@ struct FavouritesView: View {
     }
 
     var sortedFavourites: [Workout] {
-        let workouts = workoutFavouritesStore.favourites(from: workoutStore.workouts)
+        let workouts = favouritesStore.favourites(from: workoutStore.workouts)
         switch sortOption {
         case .name:
             return workouts.sorted { $0.name < $1.name }
@@ -30,33 +28,39 @@ struct FavouritesView: View {
             return workouts.sorted { $0.category < $1.category }
         case .likedDate:
             return workouts.sorted {
-                let first = workoutFavouritesStore.dateLiked(for: $0) ?? .distantPast
-                let second = workoutFavouritesStore.dateLiked(for: $1) ?? .distantPast
-                return first > second
+                let a = favouritesStore.dateLiked(for: $0) ?? .distantPast
+                let b = favouritesStore.dateLiked(for: $1) ?? .distantPast
+                return a > b
             }
         }
     }
 
     var body: some View {
         NavigationStack {
-            VStack(alignment: .leading, spacing: 0) {
-                // Dropdown Menu Sort Option
-                Menu {
-                    ForEach(SortOption.allCases) { option in
-                        Button {
-                            sortOption = option
-                        } label: {
-                            Label(option.rawValue, systemImage: sortOption == option ? "checkmark" : "")
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Favourites")
+                    .font(.largeTitle.bold())
+                    .padding(.horizontal)
+
+                HStack {
+                    Spacer()
+                    Menu {
+                        ForEach(SortOption.allCases) { option in
+                            Button {
+                                sortOption = option
+                            } label: {
+                                Label(option.rawValue, systemImage: sortOption == option ? "checkmark" : "")
+                            }
                         }
+                    } label: {
+                        Label("Sort by: \(sortOption.rawValue)", systemImage: "arrow.up.arrow.down")
+                            .padding(.horizontal)
+                            .padding(.vertical, 6)
+                            .background(Color.gray.opacity(0.2))
+                            .cornerRadius(10)
+                            .foregroundColor(.white)
                     }
-                } label: {
-                    Label("Sort by: \(sortOption.rawValue)", systemImage: "arrow.up.arrow.down")
-                        .padding(.horizontal)
-                        .padding(.vertical, 6)
-                        .background(Color.gray.opacity(0.2))
-                        .cornerRadius(10)
-                        .foregroundColor(.white)
-                        .padding(.horizontal)
+                    .padding(.trailing)
                 }
 
                 ScrollView {
@@ -66,9 +70,9 @@ struct FavouritesView: View {
                                 .onTapGesture {
                                     showDetail = workout
                                 }
-                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                .swipeActions(edge: .trailing) {
                                     Button(role: .destructive) {
-                                        workoutFavouritesStore.remove(workout: workout)
+                                        favouritesStore.remove(workout: workout)
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
@@ -78,20 +82,13 @@ struct FavouritesView: View {
                     .padding(.horizontal)
                 }
             }
-            .navigationTitle("Favourites")
-            .background(Color.fitspinBackground.ignoresSafeArea())
             .sheet(item: $showDetail) { workout in
                 ExerciseDetailLoadedView(workout: workout)
             }
+            .background(Color.fitspinBackground.ignoresSafeArea())
         }
     }
 }
 
-// MARK: - Preview
-#Preview {
-    FavouritesView()
-        .environmentObject(WorkoutStore())
-        .environmentObject(FavouritesStore())
-        .preferredColorScheme(.dark)
-}
+
 

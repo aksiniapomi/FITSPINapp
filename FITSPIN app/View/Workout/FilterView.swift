@@ -97,41 +97,6 @@ struct FilterView: View {
 }
 
 
-
-struct SuggestedWorkoutBanner: View {
-    var weatherCondition: String
-
-    var body: some View {
-        let suggestedType = (weatherCondition == "sunny") ? "Park Workout" : "Indoor Training"
-        let imageName = (weatherCondition == "sunny") ? "parkWorkout" : "indoorWorkout"
-
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Suggested Workout of the Day")
-                .font(.headline)
-                .foregroundColor(.fitspinYellow)
-                .padding(.horizontal)
-
-            ZStack(alignment: .bottomLeading) {
-                Image(imageName)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(height: 160)
-                    .clipped()
-                    .cornerRadius(12)
-
-                Text(suggestedType)
-                    .font(.title3).bold()
-                    .foregroundColor(.white)
-                    .padding(8)
-                    .background(Color.black.opacity(0.3))
-                    .cornerRadius(8)
-                    .padding(10)
-            }
-            .padding(.horizontal)
-        }
-    }
-}
-
 struct SectionHeaderView: View {
     let title: String
     var hasChevron: Bool = false

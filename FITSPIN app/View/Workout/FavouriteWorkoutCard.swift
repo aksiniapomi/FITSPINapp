@@ -11,27 +11,30 @@ import AVKit
 struct FavouriteWorkoutCard: View {
     let workout: Workout
     @EnvironmentObject var favourites: FavouritesStore
+    @State private var player: AVPlayer?
 
     var body: some View {
         HStack(spacing: 12) {
+            // 🎥 Video Preview
             if let url = workout.videoURL {
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case .empty: ProgressView()
-                    case .success(let image): image.resizable().scaledToFill()
-                    case .failure: Color.gray
-                    @unknown default: Color.gray
+                VideoPlayer(player: player)
+                    .frame(width: 100, height: 70)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .onAppear {
+                        player = AVPlayer(url: url)
+                        player?.isMuted = true
+                        player?.play()
                     }
-                }
-                .frame(width: 100, height: 70)
-                .clipped()
-                .cornerRadius(8)
+                    .onDisappear {
+                        player?.pause()
+                    }
             } else {
                 Color.gray
                     .frame(width: 100, height: 70)
                     .cornerRadius(8)
             }
 
+            // 📝 Details
             VStack(alignment: .leading, spacing: 4) {
                 Text(workout.name)
                     .font(.headline)
@@ -56,8 +59,13 @@ struct FavouriteWorkoutCard: View {
 
             Spacer()
 
-            Image(systemName: "heart.fill")
-                .foregroundColor(.fitspinTangerine)
+            // 💔 Heart Toggle
+            Button {
+                favourites.remove(workout: workout)
+            } label: {
+                Image(systemName: "heart.fill")
+                    .foregroundColor(.fitspinTangerine)
+            }
         }
         .padding()
         .background(Color.gray.opacity(0.15))
@@ -70,4 +78,5 @@ struct FavouriteWorkoutCard: View {
         return df.string(from: date)
     }
 }
+
 
