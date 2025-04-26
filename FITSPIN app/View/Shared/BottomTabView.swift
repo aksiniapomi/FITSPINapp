@@ -10,12 +10,12 @@ struct BottomTabView: View {
     
     var body: some View {
         TabView {
-            HomeView()
-                .fullScreenBackground()
-                .tabItem {
-                    Image(systemName: "house")
-                    Text("Home")
-                }
+          HomeView()
+              .fullScreenBackground()
+              .tabItem {
+                   Image(systemName: "house")
+                   Text("Home")
+              }
 
             TopTabsScreen()
                 .tabItem {
