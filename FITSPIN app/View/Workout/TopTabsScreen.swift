@@ -16,7 +16,7 @@ struct TopTabsScreen: View {
 
             ZStack {
                 switch selectedTopTab {
-                case .shuffle:
+              case .shuffle:
                     ShuffleView()
                 case .filter:
                     FilterView()
