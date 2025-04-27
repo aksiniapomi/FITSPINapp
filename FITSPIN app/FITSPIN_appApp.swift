@@ -62,5 +62,3 @@ struct FITSPIN_appApp: App {
         }
     }
 }
-
-
