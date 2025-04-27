@@ -7,86 +7,88 @@
 import SwiftUI
 
 struct FavouritesView: View {
-//    @State private var selectedTab: TopTab = .favourites
+    @EnvironmentObject var workoutStore: WorkoutStore
+    @EnvironmentObject var favouritesStore: FavouritesStore
+    @State private var sortOption: SortOption = .name
+    @State private var showDetail: Workout?
 
-    // Simulate "unlimited" data for now
-    let favouriteWorkouts = Array(repeating: FavouriteWorkout.example, count: 20)
+    enum SortOption: String, CaseIterable, Identifiable {
+        case name = "Name"
+        case category = "Category"
+        case likedDate = "Liked Date"
+        var id: String { rawValue }
+    }
+
+    var sortedFavourites: [Workout] {
+        let workouts = favouritesStore.favourites(from: workoutStore.workouts)
+        switch sortOption {
+        case .name:
+            return workouts.sorted { $0.name < $1.name }
+        case .category:
+            return workouts.sorted { $0.category < $1.category }
+        case .likedDate:
+            return workouts.sorted {
+                let a = favouritesStore.dateLiked(for: $0) ?? .distantPast
+                let b = favouritesStore.dateLiked(for: $1) ?? .distantPast
+                return a > b
+            }
+        }
+    }
 
     var body: some View {
-        VStack(spacing: 0) {
-//            TopBarView(selectedTab: $selectedTab)
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Favourites")
+                    .font(.largeTitle.bold())
+                    .padding(.horizontal)
 
-            ScrollView {
-                VStack(spacing: 20) {
-                    ForEach(favouriteWorkouts.indices, id: \.self) { index in
-                        FavouriteWorkoutCard(workout: favouriteWorkouts[index])
+                HStack {
+                    Spacer()
+                    Menu {
+                        ForEach(SortOption.allCases) { option in
+                            Button {
+                                sortOption = option
+                            } label: {
+                                Label(option.rawValue, systemImage: sortOption == option ? "checkmark" : "")
+                            }
+                        }
+                    } label: {
+                        Label("Sort by: \(sortOption.rawValue)", systemImage: "arrow.up.arrow.down")
+                            .padding(.horizontal)
+                            .padding(.vertical, 6)
+                            .background(Color.gray.opacity(0.2))
+                            .cornerRadius(10)
+                            .foregroundColor(.white)
                     }
+                    .padding(.trailing)
                 }
-                .padding()
-                .frame(maxWidth: .infinity)
+
+                ScrollView {
+                    LazyVStack(spacing: 16) {
+                        ForEach(sortedFavourites) { workout in
+                            FavouriteWorkoutCard(workout: workout)
+                                .onTapGesture {
+                                    showDetail = workout
+                                }
+                                .swipeActions(edge: .trailing) {
+                                    Button(role: .destructive) {
+                                        favouritesStore.remove(workout: workout)
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                }
+                        }
+                    }
+                    .padding(.horizontal)
+                }
             }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.fitspinBackground)
-        .ignoresSafeArea(.container, edges: .top)
-    }
-}
-
-
-
-struct FavouriteWorkout: Identifiable {
-    let id = UUID()
-    let title: String
-    let intensity: String
-    let date: String
-    let imageName: String
-
-    static let example = FavouriteWorkout(
-        title: "SQUATS",
-        intensity: "4 sets of 10",
-        date: "28/03/2025",
-        imageName: "squats"
-    )
-}
-
-struct FavouriteWorkoutCard: View {
-    let workout: FavouriteWorkout
-
-    var body: some View {
-        HStack(spacing: 10) {
-            Image(workout.imageName)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 140, height: 100)
-                .background(Color.gray.opacity(0.3))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(workout.title)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-
-                Text("workout Intensity: \(workout.intensity)")
-                    .font(.subheadline)
-                    .foregroundColor(.white)
-
-                Text("Favourited Date: \(workout.date)")
-                    .font(.caption)
-                    .foregroundColor(.white)
+            .sheet(item: $showDetail) { workout in
+                ExerciseDetailLoadedView(workout: workout)
             }
-
-            Image(systemName: "chevron.right")
-                .foregroundColor(Color.fitspinTangerine)
-                .font(.system(size: 20, weight: .bold))
+            .background(Color.fitspinBackground.ignoresSafeArea())
         }
-        .padding(10)
-        .background(Color.gray.opacity(0.4))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }
 
-struct FavouritesView_Previews: PreviewProvider {
-    static var previews: some View {
-        FavouritesView()
-    }
-}
+
+

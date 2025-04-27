@@ -5,10 +5,10 @@
 //  Created by Xenia Uni Account on 04/04/2025.
 //
 
-//delegate that bootstraps Firebase
 import SwiftUI
 import FirebaseCore
 
+// MARK: - Firebase Delegate Setup
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(
         _ application: UIApplication,
@@ -23,19 +23,23 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
 @main
 struct FITSPIN_appApp: App {
-    //bootstrap Firebase
+    // 🔌 Firebase Bootstrap
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    
-    //Create one at State object for the whole app
+
+    // 🌍 Global ViewModels / Stores
     @StateObject private var authVM = AuthViewModel()
-    @StateObject private var homeVM = HomeViewModel() //all the tabs now read homeVM.weather
+    @StateObject private var homeVM = HomeViewModel()
     @StateObject private var hydVM = HydrationViewModel()
     @StateObject private var profileVM = ProfileViewModel()
     
+
+    @StateObject private var workoutStore = WorkoutStore()
+    @StateObject private var favouritesStore = FavouritesStore()
+    @StateObject private var completedStore = CompletedWorkoutsStore()
+
     var body: some Scene {
         WindowGroup {
             Group {
-                //if not signed in, show the SignInView
                 if authVM.user == nil {
                     NavigationStack {
                         SignInView()
@@ -44,13 +48,19 @@ struct FITSPIN_appApp: App {
                     BottomTabView()
                 }
             }
-            //inject the AuthViewModel into the environment
             .environmentObject(authVM)
             .environmentObject(homeVM)
             .environmentObject(hydVM)
+
             .environmentObject(profileVM)
+
+            .environmentObject(workoutStore)
+            .environmentObject(favouritesStore)
+            .environmentObject(completedStore)
+
             .preferredColorScheme(.dark)
         }
     }
 }
+
 
