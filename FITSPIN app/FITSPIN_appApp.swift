@@ -8,7 +8,7 @@
 import SwiftUI
 import FirebaseCore
 
-// MARK: - Firebase Delegate Setup
+//Firebase Delegate Setup
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(
         _ application: UIApplication,
@@ -23,10 +23,10 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
 @main
 struct FITSPIN_appApp: App {
-    // 🔌 Firebase Bootstrap
+    //  Firebase Bootstrap
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
-    // 🌍 Global ViewModels / Stores
+    // Global ViewModels / Stores
     @StateObject private var authVM = AuthViewModel()
     @StateObject private var homeVM = HomeViewModel()
     @StateObject private var hydVM = HydrationViewModel()

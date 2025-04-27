@@ -8,7 +8,7 @@
 import SwiftUI
 import AVKit
 
-struct ShuffleView: View {
+//struct ShuffleView: View {
 //    // MARK: - Sample Workouts
 //    private let workouts: [Workout] = [
 //        Workout(
@@ -51,7 +51,7 @@ struct ShuffleView: View {
 //    @State private var elapsedTime: TimeInterval = 0
 //
 //    // MARK: - Body
-    var body: some View {
+   //var body: some View {
 //        VStack(spacing: 16) {
 //            Spacer().frame(height: 32)
 //
@@ -83,7 +83,7 @@ struct ShuffleView: View {
 //    private func resetTimer() {
 //        isPlaying = false
 //        elapsedTime = 0
-//    }
+ //}
 //}
 //
 //// MARK: - Preview
@@ -91,6 +91,26 @@ struct ShuffleView: View {
 //    static var previews: some View {
 //        ShuffleView()
 //            .preferredColorScheme(.dark)
-    }
-}
+ //   }
+//}
 //
+    //
+  
+
+    struct ShuffleView: View {
+      var body: some View {
+        VStack {
+          Text("Shuffle")
+            .font(.largeTitle)
+            .foregroundColor(.fitspinYellow)
+          Spacer()
+        }
+        .background(Color.fitspinBackground)
+      }
+    }
+
+    struct ShuffleView_Previews: PreviewProvider {
+      static var previews: some View {
+        ShuffleView()
+      }
+    }
