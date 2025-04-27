@@ -5,44 +5,59 @@
 //  Created by Derya Baglan on 24/04/2025.
 //
 
-import Foundation    // for Task.sleep
+import Foundation
 
-/// ViewModel for loading or refreshing a single Workout
 @MainActor
 class ExerciseDetailViewModel: ObservableObject {
     @Published var workout: Workout?
     @Published var isLoading = false
     @Published var errorMessage: String?
-
-    /// Load a workout by its API ID
+    
     func loadWorkout(apiId: Int) async {
         isLoading = true
         defer { isLoading = false }
-
+        
         do {
-            // Simulate network delay
-            try await Task.sleep(nanoseconds: 1_000_000_000)
-
-            // TODO: replace this block with your real API fetching logic
-            let fetched = Workout(
-                apiId:      apiId,
-                title:      "Sample Workout",
-                type:       "Demo",
-                imageName:  "exercise_thumbnail",
-                videoURL:   nil,
-                suggestions:["Tip 1", "Tip 2"],
-                sets:       3,
-                reps:       12,
-                equipment:  ["None"],
-                description:"This is a placeholder workout until your API is wired up.",
-                muscleIds:  []
+            async let translations = WgerAPI.shared.fetchTranslations()
+            async let videos       = WgerAPI.shared.fetchVideos()
+            async let equipment    = WgerAPI.shared.fetchEquipment()
+            async let exercises    = WgerAPI.shared.fetchExercises() // ✅ This is key
+            async let categories   = WgerAPI.shared.fetchCategories()
+            async let comments     = WgerAPI.shared.fetchComments()
+            
+            let (trs, vids, eqs, exs, cats, cmts) = try await (translations, videos, equipment, exercises, categories, comments)
+            
+            guard let t = trs.first(where: { $0.exercise == apiId }) else {
+                throw URLError(.badServerResponse)
+            }
+            
+            let videoURL = vids.first(where: { $0.exercise == apiId })?.video
+            let commentList = cmts.filter { $0.translation == t.id }.map { $0.comment }
+            
+            // ✅ Match equipment through the Exercise object
+            let exercise = exs.first(where: { $0.id == apiId })
+            let equipmentMap = Dictionary(uniqueKeysWithValues: eqs.map { ($0.id, $0.name) })
+            let equipmentNames = exercise?.equipment.compactMap { equipmentMap[$0] } ?? []
+            
+            // Match category
+            let categoryMap = Dictionary(uniqueKeysWithValues: cats.map { ($0.id, $0.name) })
+            let category = categoryMap[exercise?.category ?? 0] ?? "General"
+            
+            // ✅ Create enriched Workout
+            let workout = Workout(
+                exerciseId: t.exercise,
+                name: t.name,
+                description: t.description,
+                videoURL: videoURL,
+                equipment: equipmentNames,
+                category: category,
+                comments: commentList
             )
-
-            workout = fetched
-            errorMessage = nil
-
+            
+            self.workout = workout
         } catch {
-            errorMessage = "Failed to load workout: \(error.localizedDescription)"
+            errorMessage = "⚠️ \(error.localizedDescription)"
         }
     }
 }
+
