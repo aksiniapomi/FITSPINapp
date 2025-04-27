@@ -10,9 +10,13 @@ import FirebaseAuth
 
 final class HydrationService {
   private let db = Firestore.firestore()
-  private var uid: String {
-    Auth.auth().currentUser!.uid
-  }
+    
+    private var uid: String{
+      guard let u = Auth.auth().currentUser?.uid else {
+        fatalError("HydrationService requires a signed-in user.")
+      }
+      return u
+    }
 
   //Write the new intake for a given day
   func set(intake: Double, for date: Date) async throws {

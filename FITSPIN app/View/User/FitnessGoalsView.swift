@@ -13,6 +13,8 @@ struct FitnessGoalsView: View {
     
     @Environment(\.dismiss) private var dismiss
     
+    @EnvironmentObject var profileVM: ProfileViewModel
+    
     // define your goal options
     enum Goal: String, CaseIterable, Identifiable {
         case fatLoss   = "Fat Loss"
@@ -98,6 +100,7 @@ struct FitnessGoalsView: View {
                 Spacer()
                 // Confirm
                 Button("Confirm") {
+                    Task { await profileVM.save() }
                     // handle selectedGoals
                     print("User chose: \(selectedGoals.map { $0.rawValue })")
                     dismiss()

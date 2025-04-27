@@ -30,6 +30,7 @@ struct FITSPIN_appApp: App {
     @StateObject private var authVM = AuthViewModel()
     @StateObject private var homeVM = HomeViewModel() //all the tabs now read homeVM.weather
     @StateObject private var hydVM = HydrationViewModel()
+    @StateObject private var profileVM = ProfileViewModel()
     
     var body: some Scene {
         WindowGroup {
@@ -47,6 +48,7 @@ struct FITSPIN_appApp: App {
             .environmentObject(authVM)
             .environmentObject(homeVM)
             .environmentObject(hydVM)
+            .environmentObject(profileVM)
             .preferredColorScheme(.dark)
         }
     }

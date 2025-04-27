@@ -16,11 +16,13 @@ struct AccountView: View {
     @State private var showingChart = false
     
     //onboarding state
-    @State private var age: Int = 25
-    @State private var height: Int = 170
-    @State private var weight: Int = 70
-    @State private var fitnessLevel: String = "Beginner"
-    @State private var selectedGoals: Set<FitnessGoalsView.Goal> = []
+   // @State private var age: Int = 25
+ //   @State private var height: Int = 170
+  //  @State private var weight: Int = 70
+   // @State private var fitnessLevel: String = "Beginner"
+   // @State private var selectedGoals: Set<FitnessGoalsView.Goal> = []
+    
+    @EnvironmentObject private var profileVM: ProfileViewModel
     
     private var displayName: String {
         authVM.user?.displayName ?? "Guest"
@@ -84,7 +86,7 @@ struct AccountView: View {
                                 .foregroundColor(.fitspinYellow)
                             
                             // show age/height/weight line
-                            Text("\(age) yrs • \(height) cm • \(weight) kg")
+                            Text("\(profileVM.age) yrs • \(profileVM.height) cm • \(profileVM.weight) kg")
                                 .font(.caption).foregroundColor(.fitspinYellow.opacity(0.8))
                             
                             HStack(spacing: 4) {
@@ -115,24 +117,26 @@ struct AccountView: View {
                         
                         // Level from UserInfoView
                         NavigationLink {
-                            UserInfoView(age: $age,
-                                         height: $height,
-                                         weight: $weight,
-                                         fitnessLevel: $fitnessLevel)
+                            UserInfoView(
+                                   age: $profileVM.age,
+                                 height: $profileVM.height,
+                                 weight: $profileVM.weight,
+                                fitnessLevel: $profileVM.fitnessLevel
+                            )
                         } label: {
                             AccountRow(icon: "circle.grid.3x3.fill",
                                        label: "Fitness level and User details",
-                                       value: fitnessLevel,
+                                       value: profileVM.fitnessLevel,
                                        valueColor: .fitspinBlue)
                         }
                         
                         // Goals from FitnessGoalsView
                         NavigationLink {
-                            FitnessGoalsView(selectedGoals: $selectedGoals)
+                            FitnessGoalsView(selectedGoals: $profileVM.goals)
                         } label: {
                             AccountRow(icon: "target",
                                        label: "Goals",
-                                       value: selectedGoals
+                                       value: profileVM.goals
                                 .map(\.rawValue)
                                 .sorted()
                                 .joined(separator: ", "),
@@ -246,5 +250,6 @@ struct AccountView_Previews: PreviewProvider {
             .environmentObject(AuthViewModel())
             .environmentObject(HomeViewModel())
             .environmentObject(HydrationViewModel())
+            .environmentObject(ProfileViewModel())
     }
 }
