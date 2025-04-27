@@ -31,8 +31,8 @@ struct FITSPIN_appApp: App {
     @StateObject private var homeVM = HomeViewModel()
     @StateObject private var hydVM = HydrationViewModel()
     @StateObject private var profileVM = ProfileViewModel()
+    @StateObject private var notificationsVM = NotificationsViewModel()
     
-
     @StateObject private var workoutStore = WorkoutStore()
     @StateObject private var favouritesStore = FavouritesStore()
     @StateObject private var completedStore = CompletedWorkoutsStore()
@@ -51,9 +51,8 @@ struct FITSPIN_appApp: App {
             .environmentObject(authVM)
             .environmentObject(homeVM)
             .environmentObject(hydVM)
-
             .environmentObject(profileVM)
-
+            .environmentObject(notificationsVM)
             .environmentObject(workoutStore)
             .environmentObject(favouritesStore)
             .environmentObject(completedStore)

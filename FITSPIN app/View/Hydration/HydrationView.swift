@@ -14,6 +14,7 @@ struct HydrationView: View {
     //Inject HomeViewModel and HydrationVM so to read weather and hydration intake
     @EnvironmentObject private var homeVM: HomeViewModel
     @EnvironmentObject private var hydVM: HydrationViewModel
+    @EnvironmentObject private var notificationsVM: NotificationsViewModel
     
     //computed var dailyGoal taking weather into account
     private var dailyGoal: Double {
@@ -34,16 +35,11 @@ struct HydrationView: View {
             return "Stay hydrated to power your workout"
         }
         switch cond {
-        case .clear:
-            return "Sunny day-drink water!"
-        case .partlyCloudy:
-            return "A bit cloudy-keep sipping on water"
-        case .rain:
-            return "Rainy weather—hydrate indoors"
-        case .snow:
-            return "Cold out there-warm up and hydrate"
-        case .thunderstorm:
-            return "Stormy—stay safe and keep water nearby"
+        case .clear:        return "Sunny day-drink water!"
+        case .partlyCloudy: return "A bit cloudy-keep sipping on water"
+        case .rain:         return "Rainy weather—hydrate indoors"
+        case .snow:         return "Cold out there-warm up and hydrate"
+        case .thunderstorm: return "Stormy—stay safe and keep water nearby"
         }
     }
     
@@ -58,23 +54,6 @@ struct HydrationView: View {
         fmt.dateFormat = "LLLL yyyy"
         return fmt.string(from: currentDate)
     }
-    
-    //how much you have to drink before the drop starts filling
-    /*   private let fillThreshold: Double = 0.5
-     
-     private var fillFraction: CGFloat {
-     // raw fraction of your total goal
-     let raw = hydVM.todayIntake / dailyGoal
-     
-     // don’t show any fill until you hit the threshold
-     guard hydVM.todayIntake >= fillThreshold else {
-     return 0
-     }
-     // once you’re past the threshold, show the true proportion
-     return CGFloat(min(1, max(0, raw)))
-     }
-     
-     */
     
     private var fillFraction: CGFloat {
         CGFloat(min(1, hydVM.todayIntake / dailyGoal))
@@ -203,8 +182,8 @@ struct HydrationView: View {
                         Task { await hydVM.loadHistory(for: currentDate) }
                     } label: {
                         Image(systemName: "chevron.right")
+                            .foregroundColor(.fitspinOffWhite)
                     }
-                    .foregroundColor(.fitspinOffWhite)
                 }
                 .padding(.horizontal, 16)
                 
@@ -217,16 +196,20 @@ struct HydrationView: View {
                 Button {
                     let next = min(dailyGoal, hydVM.todayIntake + 0.1)
                     Task { await hydVM.log(next, on: currentDate) }
+                    //in-app notifications if the goal is reached
+                    if next >= dailyGoal {
+                        notificationsVM.add(type:.waterIntake,
+                                            message: " 🎉 Great job! You’ve reached your \(String(format: "%.1f", dailyGoal)) L goal today.",
+                                        date: Date())
+                    }
+                
                 } label: {
                     Image(systemName: "plus")
                         .font(.title2)
                         .foregroundColor(.fitspinTangerine)
                 }
                 .frame(width: 56, height: 56)
-                .overlay(
-                    Circle()
-                        .stroke(Color.fitspinTangerine, lineWidth: 2)
-                )
+                .overlay(Circle().stroke(Color.fitspinTangerine, lineWidth: 2))
                 
                 Spacer()
             }
@@ -252,10 +235,10 @@ struct HydrationView: View {
                 .foregroundColor(isSelected ? .fitspinOffWhite : .fitspinBackground)
                 .frame(width: 36, height: 36)
                 .background(
-                    Circle().fill(isSelected ? Color.fitspinBlue : .fitspinOffWhite)
-                )
+                    Circle().fill(isSelected ? Color.fitspinBlue : .fitspinOffWhite))
         }
     }
+    
     
     struct HydrationView_Previews: PreviewProvider {
         static var previews: some View {
@@ -266,4 +249,5 @@ struct HydrationView: View {
             
         }
     }
+    
 }
