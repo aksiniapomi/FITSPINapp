@@ -4,15 +4,19 @@
 //
 //  Created by Derya Baglan on 24/04/2025.
 //
+
 import SwiftUI
 import AVKit
 
 struct ExerciseDetailLoadedView: View {
     let workout: Workout
+    @EnvironmentObject var completedStore: CompletedWorkoutsStore
+    @State private var isMarked = false
 
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
+                
                 // 🎥 Video
                 if let url = workout.videoURL {
                     VideoPlayer(player: AVPlayer(url: url))
@@ -21,7 +25,7 @@ struct ExerciseDetailLoadedView: View {
                         .padding(.horizontal)
                 }
 
-                // 🏷️ Name + Category
+                // 🏷️ Title + Category
                 VStack(alignment: .leading, spacing: 12) {
                     Text(workout.name)
                         .font(.title.bold())
@@ -36,6 +40,7 @@ struct ExerciseDetailLoadedView: View {
                             .cornerRadius(8)
 
                         Spacer()
+
                         Text("\(workout.equipment.count) Equipment")
                             .font(.caption)
                             .foregroundColor(.secondary)
@@ -43,7 +48,7 @@ struct ExerciseDetailLoadedView: View {
                 }
                 .padding(.horizontal)
 
-                // 🧰 Equipment First
+                // 🧰 Equipment
                 if !workout.equipment.isEmpty {
                     sectionCard(title: "You'll Need") {
                         ScrollView(.horizontal, showsIndicators: false) {
@@ -72,13 +77,40 @@ struct ExerciseDetailLoadedView: View {
                     }
                 }
 
-                // ⏱️ Slim Timer
+                // ⏱️ Timer
                 sectionCard(title: "Timer") {
                     ExerciseTimerView(
                         exerciseName: workout.name,
-                        equipment: workout.equipment,
+                        equipment: workout.equipment
                     )
                     .frame(height: 150)
+                }
+
+                // ✅ Completion Button Feedback
+                if isMarked {
+                    Label("Workout Logged!", systemImage: "checkmark.seal.fill")
+                        .foregroundColor(.green)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.white.opacity(0.2))
+                        .cornerRadius(12)
+                        .padding(.horizontal)
+                } else {
+                    Button(action: {
+                        completedStore.add(workout)
+                        isMarked = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                            isMarked = false
+                        }
+                    }) {
+                        Label("Mark as Completed", systemImage: "checkmark.circle.fill")
+                            .foregroundColor(.white)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.fitspinTangerine)
+                            .cornerRadius(12)
+                    }
+                    .padding(.horizontal)
                 }
             }
             .padding(.vertical)
@@ -86,7 +118,7 @@ struct ExerciseDetailLoadedView: View {
         .background(Color.fitspinBackground.ignoresSafeArea())
     }
 
-    // MARK: - Section Card
+    // MARK: - Section Helper
     private func sectionCard<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(title)
@@ -107,5 +139,4 @@ struct ExerciseDetailLoadedView: View {
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
-
 

@@ -26,6 +26,8 @@ struct FITSPIN_appApp: App {
     @StateObject private var authVM = AuthViewModel()
     @StateObject private var workoutStore = WorkoutStore()
     @StateObject private var favouritesStore = FavouritesStore()
+    @StateObject private var completedStore = CompletedWorkoutsStore()
+
 
     var body: some Scene {
         WindowGroup {
@@ -41,6 +43,8 @@ struct FITSPIN_appApp: App {
             .environmentObject(authVM)
             .environmentObject(workoutStore)
             .environmentObject(favouritesStore)
+            .environmentObject(completedStore)
+
             .preferredColorScheme(.dark)
         }
     }
