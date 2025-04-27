@@ -8,80 +8,107 @@
 import SwiftUI
 
 struct NotificationsView: View {
-    let notifications: [NotificationItem] = [
-        NotificationItem(message: "We saw that you were smashing your workouts. But did you know stretching is as important as your workout. Here are some stretches you may like."),
-        NotificationItem(message: "We just updated our terms and conditions. Why don’t you check the article to see how your personal data will now be handled even more securely."),
-        NotificationItem(message: "We wanted to congratulate you as the Fitspin team for achieving your daily water intake goals. You are smashing it!")
-    ]
-
+    
+    @EnvironmentObject private var notificationsVM: NotificationsViewModel
+    @Environment(\.dismiss) private var dismiss
+    
     var body: some View {
         VStack(spacing: 0) {
-//            TopBarView(selectedTab: .constant(.notifications))
-
-            ScrollView {
-                VStack(spacing: 16) {
-                    ForEach(notifications) { notification in
-                        NotificationCard(notification: notification)
-                            .frame(maxWidth: .infinity)
+            
+            //top bar component
+            // TopBarView(selectedTab: .constant(.notifications))
+            
+            if notificationsVM.items.isEmpty {
+                Spacer()
+                Text("No notifications yet")
+                    .foregroundColor(.fitspinOffWhite.opacity(0.7))
+            } else {
+                ScrollView {
+                    LazyVStack(spacing: 12) {
+                        ForEach(notificationsVM.items) { note in
+                            NotificationCard(item: note)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
                     }
+                    .padding()
                 }
-                .padding()
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.fitspinBackground)
-        .ignoresSafeArea()
+        .background(Color.fitspinBackground.ignoresSafeArea())
+        .navigationTitle("Notifications")
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    dismiss()
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("Account")
+                    }
+                    .foregroundColor(.fitspinYellow)
+                }
+            }
+        }
     }
 }
 
-struct NotificationItem: Identifiable {
-    let id = UUID()
-    let message: String
-}
-
 struct NotificationCard: View {
-    let notification: NotificationItem
-
+    let item: NotificationItem
+    
+    // Date formatter for subtitle
+    private var timeString: String {
+        let fmt = DateFormatter()
+        fmt.timeStyle = .short
+        fmt.dateStyle = .none
+        return fmt.string(from: item.date)
+    }
+    
+    // full date (e.g. “Apr 27, 2025”)
+    private var dateString: String {
+        let fmt = DateFormatter()
+        fmt.dateStyle = .medium
+        fmt.timeStyle = .none
+        return fmt.string(from: item.date)
+    }
+    
     var body: some View {
-        HStack(alignment: .top, spacing: 5) {
-            // Red dot indicator
-            Circle()
-                .fill(Color.red)
-                .frame(width: 10, height: 10)
-                .padding(.top, 6)
-
-            // Logo and Message
-            HStack(alignment: .top, spacing: 2) {
-                Image("FitsipinNoSlogan")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 120, height: 100)
-
-                Text(notification.message)
-                    .foregroundColor(.white)
-                    .font(.subheadline)
-                    .multilineTextAlignment(.leading)
-
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Image(systemName: item.type.iconName)
+                    .foregroundColor(.fitspinYellow)
+                Text(item.type.rawValue)
+                    .font(.headline)
+                    .foregroundColor(.fitspinYellow)
                 Spacer()
-
-                Image(systemName: "chevron.right")
-                    .foregroundColor(Color.fitspinTangerine)
-                    .font(.system(size: 18, weight: .bold))
-                    .padding(.top, 40)
+                Text(timeString)
+                    .font(.caption2)
+                    .foregroundColor(.fitspinOffWhite.opacity(0.7))
             }
+            
+            Text(item.message)
+                .font(.subheadline)
+                .foregroundColor(.fitspinOffWhite)
+            
+            //date
+            Text(dateString)
+                .font(.caption2)
+                .foregroundColor(.fitspinOffWhite.opacity(0.6))
         }
-        .padding(12)
+        
+        
+        .padding()
         .background(Color.gray.opacity(0.4))
         .clipShape(RoundedRectangle(cornerRadius: 10))
-        .overlay(
-            RoundedRectangle(cornerRadius: 10)
-                .stroke(Color.black.opacity(0.2), lineWidth: 1)
-        )
     }
 }
 
 struct NotificationsView_Previews: PreviewProvider {
     static var previews: some View {
         NotificationsView()
+            .environmentObject(NotificationsViewModel())
+            .preferredColorScheme(.dark)
     }
 }
+

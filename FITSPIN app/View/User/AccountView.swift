@@ -14,6 +14,7 @@ struct AccountView: View {
     @EnvironmentObject private var completedStore: CompletedWorkoutsStore
     @EnvironmentObject private var hydVM:  HydrationViewModel
     @EnvironmentObject private var profileVM: ProfileViewModel
+  //  @StateObject private var notificationsVM = NotificationsViewModel()
     
     @State private var showingChart = false
     @State private var showCalendar = false
@@ -166,14 +167,24 @@ struct AccountView: View {
                                 )
                                 .onTapGesture { showingChart = true }
                                 
-                                // 🔔 Notifications
+                           
+                        // Notifications - NavigationLink
+                        NavigationLink {
+                            NotificationsView()
+                              //  .environmentObject(notificationsVM)
+                        } label: {
+                            HStack {
                                 AccountRow(
                                     icon: "bell.badge.fill",
                                     label: "Notifications",
                                     value: "On",
                                     valueColor: .fitspinBlue
                                 )
-                                
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(.fitspinYellow)
+                            }
+                        }
                                 // 💬 Feedback
                                 AccountRow(
                                     icon: "bubble.left",
