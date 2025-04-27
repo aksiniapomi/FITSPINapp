@@ -15,6 +15,8 @@ struct UserInfoView: View {
     
     @Environment(\.dismiss) private var dismiss
     
+    @EnvironmentObject var profileVM: ProfileViewModel
+    
     let fitnessLevels = ["Beginner", "Intermediate", "Advanced"]
     
     var body: some View {
@@ -66,6 +68,7 @@ struct UserInfoView: View {
                 
                 // Confirm
                 Button("Confirm") {
+                    Task { await profileVM.save() }
                     // Navigate to Account
                     dismiss()
                 }

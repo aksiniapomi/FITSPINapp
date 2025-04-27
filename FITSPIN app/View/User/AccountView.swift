@@ -11,18 +11,23 @@ import FirebaseAuth
 struct AccountView: View {
     @EnvironmentObject private var authVM: AuthViewModel
     @EnvironmentObject private var homeVM: HomeViewModel
-    @EnvironmentObject private var hydVM: HydrationViewModel
     @EnvironmentObject private var completedStore: CompletedWorkoutsStore
-
-    @State private var showCalendar = false
+    @EnvironmentObject private var hydVM:  HydrationViewModel
+    @EnvironmentObject private var profileVM: ProfileViewModel
+    
     @State private var showingChart = false
-
-    @State private var age: Int = 25
-    @State private var height: Int = 170
-    @State private var weight: Int = 70
-    @State private var fitnessLevel: String = "Beginner"
-    @State private var selectedGoals: Set<FitnessGoalsView.Goal> = []
-
+     @State private var showCalendar = false
+  
+    //onboarding state
+    // @State private var age: Int = 25
+    //   @State private var height: Int = 170
+    //  @State private var weight: Int = 70
+    // @State private var fitnessLevel: String = "Beginner"
+    // @State private var selectedGoals: Set<FitnessGoalsView.Goal> = []
+   
+    //IOS16 ShareLink functionality
+    private let repoURL = URL(string: "https://github.com/aksiniapomi/FITSPINapp.git")!
+   
     private var completedWorkoutsCount: Int {
         completedStore.completed.count
     }
@@ -84,10 +89,12 @@ struct AccountView: View {
                             Text(emailAddress)
                                 .font(.subheadline)
                                 .foregroundColor(.fitspinYellow)
-
-                            Text("\(age) yrs • \(height) cm • \(weight) kg")
+                            
+                            // show age/height/weight line
+                            Text("\(profileVM.age) yrs • \(profileVM.height) cm • \(profileVM.weight) kg")
                                 .font(.caption)
                                 .foregroundColor(.fitspinYellow.opacity(0.8))
+         
 
                             HStack(spacing: 4) {
                                 Image(systemName: "mappin.and.ellipse")
@@ -131,27 +138,32 @@ struct AccountView: View {
 
                         // 🧍 User Details
                         NavigationLink {
-                            UserInfoView(age: $age, height: $height, weight: $weight, fitnessLevel: $fitnessLevel)
-                        } label: {
-                            AccountRow(
-                                icon: "circle.grid.3x3.fill",
-                                label: "Fitness level and User details",
-                                value: fitnessLevel,
-                                valueColor: .fitspinBlue
+
+                            UserInfoView(
+                                age: $profileVM.age,
+                                height: $profileVM.height,
+                                weight: $profileVM.weight,
+                                fitnessLevel: $profileVM.fitnessLevel
                             )
-                        }
+                        } label: {
+                            AccountRow(icon: "circle.grid.3x3.fill",
+                                       label: "Fitness level and User details",
+                                       value: profileVM.fitnessLevel,
+                                       valueColor: .fitspinBlue)
+
 
                         // 🎯 Goals
                         NavigationLink {
-                            FitnessGoalsView(selectedGoals: $selectedGoals)
+                            FitnessGoalsView(selectedGoals: $profileVM.goals)
                         } label: {
-                            AccountRow(
-                                icon: "target",
-                                label: "Goals",
-                                value: selectedGoals.map(\.rawValue).sorted().joined(separator: ", "),
-                                valueColor: .fitspinBlue
-                            )
-                        }
+
+                            AccountRow(icon: "target",
+                                       label: "Goals",
+                                       value: profileVM.goals
+                                .map(\.rawValue)
+                                .sorted()
+                                .joined(separator: ", "),
+                                       valueColor: .fitspinBlue)
 
                         // 💧 Hydration
                         AccountRow(
@@ -191,13 +203,20 @@ struct AccountView: View {
 
                     Spacer(minLength: 50)
 
-                    // 🌍 Refer a Friend
-                    Button {
-                        // refer logic
-                    } label: {
+                    //refer action
+                    //  ShareLink
+                    ShareLink(
+                        item: repoURL,
+                        preview: SharePreview(
+                            "Check out FITSPIN on GitHub!",
+                            image: Image("FITSPIN_logo")
+                        )
+                    ) {
                         HStack {
-                            Image(systemName: "network")
-                            Text("Refer a friend").bold()
+                            Image(systemName: "link")
+                            Text("Refer a friend")
+                                .bold()
+
                         }
                         .foregroundColor(.fitspinYellow)
                     }
@@ -256,7 +275,9 @@ struct AccountView_Previews: PreviewProvider {
             .preferredColorScheme(.dark)
             .environmentObject(AuthViewModel())
             .environmentObject(HomeViewModel())
-            .environmentObject(HydrationViewModel())
+             .environmentObject(HydrationViewModel())
+            .environmentObject(ProfileViewModel())
             .environmentObject(CompletedWorkoutsStore())
+
     }
 }
