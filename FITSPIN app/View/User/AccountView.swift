@@ -13,16 +13,20 @@ struct AccountView: View {
     @EnvironmentObject private var homeVM: HomeViewModel
     @EnvironmentObject private var hydVM:  HydrationViewModel
     
+    
     @State private var showingChart = false
     
     //onboarding state
-   // @State private var age: Int = 25
- //   @State private var height: Int = 170
-  //  @State private var weight: Int = 70
-   // @State private var fitnessLevel: String = "Beginner"
-   // @State private var selectedGoals: Set<FitnessGoalsView.Goal> = []
+    // @State private var age: Int = 25
+    //   @State private var height: Int = 170
+    //  @State private var weight: Int = 70
+    // @State private var fitnessLevel: String = "Beginner"
+    // @State private var selectedGoals: Set<FitnessGoalsView.Goal> = []
     
     @EnvironmentObject private var profileVM: ProfileViewModel
+    
+    //IOS16 ShareLink functionality
+    private let repoURL = URL(string: "https://github.com/aksiniapomi/FITSPINapp.git")!
     
     private var displayName: String {
         authVM.user?.displayName ?? "Guest"
@@ -118,9 +122,9 @@ struct AccountView: View {
                         // Level from UserInfoView
                         NavigationLink {
                             UserInfoView(
-                                   age: $profileVM.age,
-                                 height: $profileVM.height,
-                                 weight: $profileVM.weight,
+                                age: $profileVM.age,
+                                height: $profileVM.height,
+                                weight: $profileVM.weight,
                                 fitnessLevel: $profileVM.fitnessLevel
                             )
                         } label: {
@@ -190,9 +194,17 @@ struct AccountView: View {
                     
                     Spacer(minLength: 50)
                     
-                    Button { /* refer action */ } label: {
+                    //refer action
+                    //  ShareLink
+                    ShareLink(
+                        item: repoURL,
+                        preview: SharePreview(
+                            "Check out FITSPIN on GitHub!",
+                            image: Image("FITSPIN_logo")
+                        )
+                    ) {
                         HStack {
-                            Image(systemName: "network")
+                            Image(systemName: "link")
                             Text("Refer a friend")
                                 .bold()
                         }
