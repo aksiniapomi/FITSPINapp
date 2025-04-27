@@ -9,7 +9,9 @@ import SwiftUI
 
 struct FitnessGoalsView: View {
     // allow multiple selection
-    @State private var selectedGoals: Set<Goal> = []
+    @Binding var selectedGoals: Set<Goal>
+    
+    @Environment(\.dismiss) private var dismiss
     
     // define your goal options
     enum Goal: String, CaseIterable, Identifiable {
@@ -98,6 +100,7 @@ struct FitnessGoalsView: View {
                 Button("Confirm") {
                     // handle selectedGoals
                     print("User chose: \(selectedGoals.map { $0.rawValue })")
+                    dismiss()
                 }
                 .buttonStyle(FPOutlineButtonStyle())
                 .padding(.horizontal)
@@ -105,8 +108,23 @@ struct FitnessGoalsView: View {
                 Spacer()
             }
         }
-        .navigationBarHidden(true)
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true) 
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    dismiss()
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("Account")
+                    }
+                    .foregroundColor(.fitspinYellow)
+                }
+            }
+        }
     }
+    
     
     
     private func toggle(_ goal: Goal) {
@@ -121,8 +139,11 @@ struct FitnessGoalsView: View {
 struct FitnessGoalsView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
-            FitnessGoalsView()
-                .preferredColorScheme(.dark)
+            FitnessGoalsView(
+                selectedGoals: .constant([.muscleGain, .hydration])
+            )
+            
+            .preferredColorScheme(.dark)
         }
     }
 }

@@ -95,7 +95,7 @@ struct RegisterView: View {
                         Rectangle()
                             .fill(Color.fitspinOffWhite)
                             .frame(height: 1)
-                    }
+                     }
                     .padding(.horizontal)
                     
                     
