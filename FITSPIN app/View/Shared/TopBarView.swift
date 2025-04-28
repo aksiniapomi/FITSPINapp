@@ -26,7 +26,7 @@ struct TopBarView: View {
                 topTabButton(tab: .shuffle, icon: "calendar", label: "Today")
                 topTabButton(tab: .filter, icon: "line.3.horizontal.decrease.circle", label: "Filter")
                 topTabButton(tab: .favourites, icon: "heart.fill", label: "Favourites")
-                topTabButton(tab: .notifications, icon: "bell", label: "Notifications", badge: "3")
+                topTabButton(tab: .notifications, icon: "bell", label: "Notifications", badge: "")
             }
             .padding(.bottom, 10)
         }
