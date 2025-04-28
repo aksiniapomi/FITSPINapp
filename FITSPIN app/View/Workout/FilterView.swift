@@ -27,7 +27,7 @@ struct FilterView: View {
     private var contentBody: some View {
         VStack(alignment: .leading, spacing: 24) {
             searchBar
-            SuggestedWorkoutBanner(weatherCondition: "sunny")
+            SuggestedWorkoutBanner(weather: vm.weather)
             trendingCategories
             workoutResults
         }

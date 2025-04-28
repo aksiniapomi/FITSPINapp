@@ -1,8 +1,10 @@
 //  FITSPIN app
-//
+// FilterViewModel.swift
 //  Created by Derya Baglan on 24/04/2025.
 
+
 import Foundation
+import CoreLocation
 
 @MainActor
 class FilterViewModel: ObservableObject {
@@ -10,15 +12,20 @@ class FilterViewModel: ObservableObject {
     @Published var categories: [ExerciseCategory] = []
     @Published var filteredWorkouts: [Workout] = []
     @Published var selectedCategory: String? = nil
-
+    @Published var weather: Weather?
+    @Published var errorMessage: String?
 
     private var allWorkouts: [Workout] = []
+    private let weatherService = WeatherService()
+    private let locationManager = CLLocationManager()
 
     init() {
         Task {
             await fetchInitialData()
+            await fetchWeather()
         }
     }
+
     func fetchInitialData() async {
         do {
             let workouts = try await WgerAPI.shared.fetchWorkouts()
@@ -26,13 +33,50 @@ class FilterViewModel: ObservableObject {
             self.filteredWorkouts = workouts
 
             // Create categories from actual data
-            let uniqueCategories = Set(workouts.map(\.category))
+            let uniqueCategories = Set(workouts.map(\ .category))
             self.categories = uniqueCategories.enumerated().map { index, title in
                 ExerciseCategory(id: index, name: title)
             }
-
         } catch {
             print("❌ Failed to load workouts:", error.localizedDescription)
+        }
+    }
+
+    func fetchWeather() async {
+        do {
+            let status = locationManager.authorizationStatus
+            guard status == .authorizedWhenInUse || status == .authorizedAlways else {
+                throw NSError(domain: "Location permission denied", code: 1)
+            }
+
+            guard let loc = locationManager.location else {
+                throw NSError(domain: "Unable to get location", code: 2)
+            }
+
+            let response = try await weatherService.currentWeather(
+                lat: loc.coordinate.latitude,
+                lon: loc.coordinate.longitude
+            )
+
+            let condID = response.weather.first?.id ?? 800
+            let condition: Weather.Condition
+            switch condID {
+            case 800: condition = .clear
+            case 801...802: condition = .partlyCloudy
+            case 200..<600: condition = .rain
+            case 600..<700: condition = .snow
+            case 200..<300, 900..<1000: condition = .thunderstorm
+            default: condition = .clear
+            }
+
+            let weatherModel = Weather(
+                temperature: response.main.temp,
+                condition: condition
+            )
+
+            self.weather = weatherModel
+        } catch {
+            self.errorMessage = "Failed to fetch weather: \(error.localizedDescription)"
         }
     }
 
@@ -60,6 +104,5 @@ class FilterViewModel: ObservableObject {
             }
         }
     }
-
 }
 
