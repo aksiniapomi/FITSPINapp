@@ -13,7 +13,7 @@ struct TopBarView: View {
         VStack(alignment: .center, spacing: -20) {
             // Logo aligned to left
             HStack {
-                Image("FitsipinNoSlogan")
+                Image("fitspintext")
                     .resizable()
                     .scaledToFit()
                     .frame(height: 120)

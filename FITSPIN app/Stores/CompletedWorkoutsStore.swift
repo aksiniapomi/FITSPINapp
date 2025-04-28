@@ -33,6 +33,15 @@ final class CompletedWorkoutsStore: ObservableObject {
         persist()
     }
 
+    func remove(_ workout: Workout) {
+        completed.removeAll { $0.exerciseId == workout.exerciseId }
+        persist()
+    }
+
+    func isCompleted(_ workout: Workout) -> Bool {
+        completed.contains { $0.exerciseId == workout.exerciseId }
+    }
+
     private func load() {
         if let decoded = try? JSONDecoder().decode([CompletedWorkout].self, from: storedData) {
             completed = decoded
