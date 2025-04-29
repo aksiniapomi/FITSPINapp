@@ -23,8 +23,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 @main
 struct FITSPIN_appApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-
-    // Global ViewModels / Stores
+    
+    // Global ViewModels/Stores
     @StateObject private var authVM = AuthViewModel()
     @StateObject private var homeVM = HomeViewModel()
     @StateObject private var hydVM = HydrationViewModel()
@@ -33,11 +33,10 @@ struct FITSPIN_appApp: App {
     @StateObject private var workoutStore = WorkoutStore()
     @StateObject private var favouritesStore = FavouritesStore()
     @StateObject private var completedStore = CompletedWorkoutsStore()
-
-    // ✅ New ones:
+    
     @StateObject private var filterVM = FilterViewModel()
     @StateObject private var exerciseListVM = ExerciseListViewModel()
-
+    
     var body: some Scene {
         WindowGroup {
             Group {
@@ -57,13 +56,10 @@ struct FITSPIN_appApp: App {
             .environmentObject(workoutStore)
             .environmentObject(favouritesStore)
             .environmentObject(completedStore)
-
-            // ✅ Pass the new environment objects
             .environmentObject(filterVM)
             .environmentObject(exerciseListVM)
-
+            
             .preferredColorScheme(.dark)
         }
     }
 }
-

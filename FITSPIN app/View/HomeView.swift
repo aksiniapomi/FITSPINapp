@@ -2,7 +2,6 @@
 //  HomeView.swift
 //  FITSPIN app
 //
-//  Updated by ChatGPT on 28/04/2025 to include navigation to ShuffleView.
 
 import SwiftUI
 import CoreLocation
@@ -12,9 +11,9 @@ struct HomeView: View {
     @EnvironmentObject private var authVM: AuthViewModel
     @EnvironmentObject private var completedStore: CompletedWorkoutsStore
     @EnvironmentObject private var favouritesStore: FavouritesStore
-
+    
     @State private var showShuffle = false
-
+    
     private var userName: String {
         if let displayName = authVM.user?.displayName, !displayName.isEmpty {
             return displayName
@@ -22,12 +21,12 @@ struct HomeView: View {
         let email = authVM.user?.email ?? "User"
         return String(email.split(separator: "@").first ?? Substring(email))
     }
-
+    
     var body: some View {
         NavigationStack {
             ZStack {
                 Color.fitspinBackground.ignoresSafeArea()
-
+                
                 if vm.isLoading {
                     ProgressView()
                         .progressViewStyle(.circular)
@@ -56,7 +55,7 @@ struct HomeView: View {
                 .presentationDetents([.large])
         }
     }
-
+    
     @ViewBuilder
     private func content(for weather: Weather) -> some View {
         VStack(spacing: 24) {
@@ -69,27 +68,27 @@ struct HomeView: View {
             }
             .padding(.leading, 30)
             Spacer()
-
+            
             Text("HELLO, \(userName.uppercased())!")
                 .font(.title2.bold())
                 .foregroundColor(.fitspinBlue)
-
+            
             Image(systemName: weather.condition.iconName)
                 .resizable()
                 .scaledToFit()
                 .frame(width: 120, height: 120)
                 .foregroundColor(.fitspinYellow)
-
+            
             Text(String(format: "%.0fºC", weather.temperature))
                 .font(.system(size: 48, weight: .semibold))
                 .foregroundColor(.fitspinOffWhite)
-
+            
             Text(weather.condition.description)
                 .font(.subheadline)
                 .foregroundColor(.fitspinYellow.opacity(0.8))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
-
+            
             Button(action: {
                 showShuffle = true
             }) {
@@ -102,7 +101,7 @@ struct HomeView: View {
                     .shadow(radius: 10)
             }
             .buttonStyle(PlainButtonStyle())
-
+            
             Spacer()
         }
         .padding(.top, 16)

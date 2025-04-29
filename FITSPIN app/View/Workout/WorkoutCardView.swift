@@ -10,7 +10,7 @@ import AVKit
 
 struct WorkoutCardView: View {
     let workout: Workout
-
+    
     @State private var isPlaying = false
     @State private var elapsedTime: TimeInterval = 0
     @State private var timer: Timer?
@@ -18,12 +18,13 @@ struct WorkoutCardView: View {
     @State private var animateHeart = false
     @State private var showToast = false
     @State private var toastMessage = ""
-
+    
     @EnvironmentObject var favouritesStore: FavouritesStore
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            // 🎥 Video
+            
+            //Video
             if let url = workout.videoURL {
                 VideoPlayer(player: player)
                     .frame(height: 220)
@@ -41,21 +42,21 @@ struct WorkoutCardView: View {
                             .foregroundColor(.white.opacity(0.7))
                     )
             }
-
-            // 📋 Info + Heart
+            
+            //Info + Heart
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(workout.category.uppercased())
                         .font(.caption2)
                         .foregroundColor(.fitspinBlue)
-
+                    
                     HStack {
                         Text(workout.name)
                             .font(.headline)
                             .foregroundColor(.white)
-
+                        
                         Spacer()
-
+                        
                         ZStack(alignment: .topTrailing) {
                             Button(action: {
                                 favouritesStore.toggle(workout)
@@ -64,11 +65,11 @@ struct WorkoutCardView: View {
                                     toastMessage = favouritesStore.isFavourite(workout) ? "Added to Favourites" : "Removed from Favourites"
                                     showToast = true
                                 }
-
+                                
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                                     animateHeart = false
                                 }
-
+                                
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                                     withAnimation { showToast = false }
                                 }
@@ -81,7 +82,7 @@ struct WorkoutCardView: View {
                                     .shadow(color: favouritesStore.isFavourite(workout) ? .fitspinTangerine.opacity(0.6) : .clear,
                                             radius: animateHeart ? 6 : 0)
                             }
-
+                            
                             if !favouritesStore.isFavourite(workout) {
                                 Image(systemName: "plus.circle.fill")
                                     .font(.system(size: 10))
@@ -91,7 +92,7 @@ struct WorkoutCardView: View {
                             }
                         }
                     }
-
+                    
                     if !workout.equipment.isEmpty {
                         Text("Equipment: \(workout.equipment.joined(separator: ", "))")
                             .font(.caption)
@@ -99,8 +100,8 @@ struct WorkoutCardView: View {
                     }
                 }
             }
-
-            // ✅ Toast Feedback
+            
+            //Toast Feedback
             if showToast {
                 Text(toastMessage)
                     .font(.caption)
@@ -121,25 +122,25 @@ struct WorkoutCardView: View {
             player?.pause()
         }
     }
-
-    // MARK: - Timer Logic
+    
+    //Timer Logic
     private func start() {
         isPlaying = true
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
             elapsedTime += 1
         }
     }
-
+    
     private func pause() {
         isPlaying = false
         timer?.invalidate()
     }
-
+    
     private func reset() {
         elapsedTime = 0
         timer?.invalidate()
     }
-
+    
     private func timeString(from seconds: TimeInterval) -> String {
         let mins = Int(seconds) / 60
         let secs = Int(seconds) % 60

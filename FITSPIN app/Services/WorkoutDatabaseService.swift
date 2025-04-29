@@ -117,7 +117,7 @@ final class WorkoutDatabaseService {
 extension DateFormatter {
     static let completedWorkoutKeyFormatter: DateFormatter = {
         let f = DateFormatter()
-        f.dateFormat = "yyyy-MM-dd" // Only date, no time
+        f.dateFormat = "yyyy-MM-dd" // Only date and no time
         return f
     }()
 }

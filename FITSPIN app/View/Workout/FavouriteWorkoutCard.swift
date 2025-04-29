@@ -13,10 +13,11 @@ struct FavouriteWorkoutCard: View {
     let workout: Workout
     @EnvironmentObject var favourites: FavouritesStore
     @State private var player: AVPlayer?
-
+    
     var body: some View {
         HStack(spacing: 12) {
-            // 🎥 Video Preview
+            
+            //Video Preview
             if let url = workout.videoURL {
                 VideoPlayer(player: player)
                     .frame(width: 100, height: 70)
@@ -34,33 +35,33 @@ struct FavouriteWorkoutCard: View {
                     .frame(width: 100, height: 70)
                     .cornerRadius(8)
             }
-
-            // 📝 Details
+            
+            //Details
             VStack(alignment: .leading, spacing: 4) {
                 Text(workout.name)
                     .font(.headline)
                     .foregroundColor(.white)
-
+                
                 Text(workout.category.capitalized)
                     .font(.caption)
                     .foregroundColor(.fitspinBlue)
-
+                
                 if !workout.equipment.isEmpty {
                     Text(workout.equipment.joined(separator: ", "))
                         .font(.caption2)
                         .foregroundColor(.gray)
                 }
-
+                
                 if let date = favourites.dateLiked(for: workout) {
                     Text("Liked: \(formatted(date))")
                         .font(.caption2)
                         .foregroundColor(.gray)
                 }
             }
-
+            
             Spacer()
-
-            // 💔 Heart Toggle
+            
+            //Heart Toggle
             Button {
                 favourites.toggle(workout)
             } label: {
@@ -74,7 +75,7 @@ struct FavouriteWorkoutCard: View {
         .background(Color.gray.opacity(0.15))
         .cornerRadius(12)
     }
-
+    
     private func formatted(_ date: Date) -> String {
         let df = DateFormatter()
         df.dateStyle = .short

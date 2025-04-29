@@ -21,7 +21,7 @@ struct IntakeChartView: View {
         return fmt.string(from: selectedMonth)
     }
     
-    // Pull the VM’s published data for the currently selected month
+    //Pull the VM’s published data for the currently selected month
     private var data: [DailyIntake] {
         hydVM.intakeHistory(for: selectedMonth)
     }
@@ -45,7 +45,7 @@ struct IntakeChartView: View {
                     .font(.title2).bold()
                     .foregroundColor(.fitspinBlue)
                 
-                // Month selector
+                //Month selector
                 HStack {
                     Button { changeMonth(by: -1) } label: {
                         Image(systemName: "chevron.left")
@@ -68,7 +68,7 @@ struct IntakeChartView: View {
                     .foregroundColor(.fitspinYellow)
                 }
                 
-                // Chart
+                //Chart
                 Chart(data) { entry in
                     BarMark(
                         x: .value("Day", entry.date, unit: .day),
@@ -93,7 +93,7 @@ struct IntakeChartView: View {
                         }
                     }
                 }
-                // X-axis every 5 days
+                //X-axis every 5 days
                 .chartXAxis {
                     AxisMarks(values: .stride(by: .day, count: 5)) { mark in
                         AxisGridLine()
@@ -102,7 +102,7 @@ struct IntakeChartView: View {
                             .foregroundStyle(Color.fitspinOffWhite)
                     }
                 }
-                // Y-axis on leading edge, show “1.0 L”
+                //Y-axis on leading edge, show 1.0 L
                 .chartYAxis {
                     AxisMarks(position: .leading) { mark in
                         AxisGridLine()
@@ -114,12 +114,13 @@ struct IntakeChartView: View {
                         .foregroundStyle(Color.fitspinOffWhite)
                     }
                 }
-                // Axis labels
+                //Axis labels
                 .chartXAxisLabel("Day", position: .bottom, alignment: .center)
                 .chartYAxisLabel("Liters", position: .leading, alignment: .center)
                 .frame(height: 300)
                 .padding(.bottom)
-                // Interactive tooltip overlay
+                
+                //Interactive tooltip overlay
                 .chartOverlay { proxy in
                     GeometryReader { geo in
                         // resolve the plot‐area rectangle

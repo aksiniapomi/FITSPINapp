@@ -27,7 +27,7 @@ final class HydrationService {
     //Write the new intake for a given day
     func set(intake: Double, for date: Date) async throws {
         let userId = try uid
-        let id = isoDateFormatter.string(from: date)  // e.g. "2025-04-26"
+        let id = isoDateFormatter.string(from: date)
         let ref = db
             .collection("users")
             .document(userId)

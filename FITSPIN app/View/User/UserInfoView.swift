@@ -25,21 +25,19 @@ struct UserInfoView: View {
             Color.fitspinBackground.ignoresSafeArea()
             
             VStack(spacing: 24) {
-                // Logo
+                
                 Image("FITSPIN_logo")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 180)
                     .padding(.top, 40)
                 
-                // Instruction
                 Text("Please tell us more about you")
                     .font(.headline)
                     .foregroundColor(.fitspinTangerine)
                 
                 Spacer()
                 
-                // Input fields
                 VStack(spacing: 16) {
                     StepperField(label: "Age", value: $age, range: 10...100)
                     StepperField(label: "Height (cm)", value: $height, range: 100...250)
@@ -66,7 +64,6 @@ struct UserInfoView: View {
                 
                 Spacer()
                 
-                // Confirm
                 Button("Confirm") {
                     Task { await profileVM.save() }
                     // Navigate to Account
@@ -79,7 +76,7 @@ struct UserInfoView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)   
+        .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {
@@ -95,8 +92,7 @@ struct UserInfoView: View {
         }
     }
     
-    
-    //A reusable stepper row with label +/– inside a rounded rectangle
+    //Reusable stepper row with label +/– inside a rounded rectangle
     private struct StepperField: View {
         let label: String
         @Binding var value: Int
@@ -134,16 +130,16 @@ struct UserInfoView: View {
         }
     }
 }
-    struct UserInfoView_Previews: PreviewProvider {
-        static var previews: some View {
-            NavigationStack {
-                //dummy data for preview
-                UserInfoView(age: .constant(25),
-                             height: .constant(170),
-                             weight: .constant(70),
-                             fitnessLevel: .constant("Beginner"))
-                .preferredColorScheme(.dark)
-            }
+struct UserInfoView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationStack {
+            //dummy data for preview
+            UserInfoView(age: .constant(25),
+                         height: .constant(170),
+                         weight: .constant(70),
+                         fitnessLevel: .constant("Beginner"))
+            .preferredColorScheme(.dark)
         }
     }
+}
 

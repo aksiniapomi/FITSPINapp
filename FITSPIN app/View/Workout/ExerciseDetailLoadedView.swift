@@ -12,25 +12,25 @@ struct ExerciseDetailLoadedView: View {
     let workout: Workout
     @EnvironmentObject var completedStore: CompletedWorkoutsStore
     @State private var isMarked = false
-
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
                 
-                // 🎥 Video
+                //Video
                 if let url = workout.videoURL {
                     VideoPlayer(player: AVPlayer(url: url))
                         .frame(height: 280)
                         .clipShape(RoundedRectangle(cornerRadius: 20))
                         .padding(.horizontal)
                 }
-
-                // 🏷️ Title + Category
+                
+                //Title + Category
                 VStack(alignment: .leading, spacing: 12) {
                     Text(workout.name)
                         .font(.title.bold())
                         .foregroundColor(.white)
-
+                    
                     HStack {
                         Text(workout.category.uppercased())
                             .font(.caption)
@@ -38,17 +38,17 @@ struct ExerciseDetailLoadedView: View {
                             .padding(.vertical, 4)
                             .background(Color.blue.opacity(0.15))
                             .cornerRadius(8)
-
+                        
                         Spacer()
-
+                        
                         Text("\(workout.equipment.count) Equipment")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
                 }
                 .padding(.horizontal)
-
-                // 🧰 Equipment
+                
+                //Equipment
                 if !workout.equipment.isEmpty {
                     sectionCard(title: "You'll Need") {
                         ScrollView(.horizontal, showsIndicators: false) {
@@ -60,14 +60,14 @@ struct ExerciseDetailLoadedView: View {
                         }
                     }
                 }
-
-                // 📄 Description
+                
+                //Description
                 sectionCard(title: "Description") {
                     Text(cleanHTML(workout.description))
                         .foregroundColor(.white)
                 }
-
-                // 💬 Tips
+                
+                //Tips
                 if !workout.comments.isEmpty {
                     sectionCard(title: "Tips") {
                         ForEach(workout.comments, id: \.self) { tip in
@@ -76,8 +76,8 @@ struct ExerciseDetailLoadedView: View {
                         }
                     }
                 }
-
-                // ⏱️ Timer
+                
+                //Timer
                 sectionCard(title: "Timer") {
                     ExerciseTimerView(
                         exerciseName: workout.name,
@@ -85,8 +85,8 @@ struct ExerciseDetailLoadedView: View {
                     )
                     .frame(height: 150)
                 }
-
-                // ✅ Completion Button Feedback
+                
+                //Completion Button Feedback
                 if isMarked {
                     Label("Workout Logged!", systemImage: "checkmark.seal.fill")
                         .foregroundColor(.green)
@@ -117,8 +117,7 @@ struct ExerciseDetailLoadedView: View {
         }
         .background(Color.fitspinBackground.ignoresSafeArea())
     }
-
-    // MARK: - Section Helper
+    
     private func sectionCard<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(title)
@@ -131,8 +130,8 @@ struct ExerciseDetailLoadedView: View {
         .cornerRadius(16)
         .padding(.horizontal)
     }
-
-    // MARK: - HTML Cleaner
+    
+    //HTML Cleaner
     private func cleanHTML(_ html: String) -> String {
         html.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
             .replacingOccurrences(of: "&nbsp;", with: " ")

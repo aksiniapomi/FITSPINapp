@@ -8,10 +8,10 @@ import SwiftUI
 
 struct TopBarView: View {
     @Binding var selectedTab: TopTab
-
+    
     var body: some View {
         VStack(alignment: .center, spacing: -20) {
-            // Logo aligned to left
+            
             HStack {
                 Image("fitspintext")
                     .resizable()
@@ -20,7 +20,7 @@ struct TopBarView: View {
                 Spacer()
             }
             .padding(.top, -30)
-
+            
             // Tab Items
             HStack(spacing: 55) {
                 topTabButton(tab: .shuffle, icon: "calendar", label: "Today")
@@ -33,7 +33,7 @@ struct TopBarView: View {
         .frame(maxWidth: .infinity)
         .background(Color.fitspinBackground)
     }
-
+    
     private func topTabButton(tab: TopTab, icon: String, label: String, badge: String? = nil) -> some View {
         VStack(spacing: 4) {
             Button(action: {
@@ -45,7 +45,7 @@ struct TopBarView: View {
                         .scaledToFit()
                         .frame(width: 25, height: 25)
                         .foregroundColor(selectedTab == tab ? .fitspinYellow : .fitspinOffWhite)
-
+                    
                     if let badge = badge {
                         Text(badge)
                             .font(.caption2)
@@ -57,7 +57,7 @@ struct TopBarView: View {
                     }
                 }
             }
-
+            
             Text(label)
                 .font(.caption2)
                 .foregroundColor(selectedTab == tab ? .fitspinYellow : .fitspinOffWhite)

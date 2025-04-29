@@ -10,7 +10,7 @@ import SwiftUI
 struct FilterView: View {
     @StateObject private var vm = FilterViewModel()
     @State private var selectedWorkout: Workout?
-
+    
     var body: some View {
         NavigationStack {
             ScrollView(showsIndicators: false) {
@@ -23,7 +23,7 @@ struct FilterView: View {
             }
         }
     }
-
+    
     private var contentBody: some View {
         VStack(alignment: .leading, spacing: 24) {
             searchBar
@@ -33,7 +33,7 @@ struct FilterView: View {
         }
         .padding(.top)
     }
-
+    
     private var searchBar: some View {
         HStack {
             Image(systemName: "magnifyingglass")
@@ -47,11 +47,11 @@ struct FilterView: View {
         .cornerRadius(10)
         .padding(.horizontal)
     }
-
+    
     private var trendingCategories: some View {
         VStack(alignment: .leading, spacing: 8) {
-            SectionHeaderView(title: "Trending") // ✅ No chevron
-
+            SectionHeaderView(title: "Trending") //No chevron
+            
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 16) {
                     ForEach(vm.categories) { category in
@@ -70,13 +70,13 @@ struct FilterView: View {
             }
         }
     }
-
+    
     private var workoutResults: some View {
         Group {
             if !vm.filteredWorkouts.isEmpty {
                 VStack(alignment: .leading, spacing: 16) {
                     SectionHeaderView(title: "Results")
-
+                    
                     LazyVStack(spacing: 16) {
                         ForEach(vm.filteredWorkouts) { workout in
                             WorkoutCardView(workout: workout)
@@ -96,11 +96,10 @@ struct FilterView: View {
     }
 }
 
-
 struct SectionHeaderView: View {
     let title: String
     var hasChevron: Bool = false
-
+    
     var body: some View {
         HStack {
             Text(title)
@@ -125,7 +124,7 @@ struct WorkoutCategory: Identifiable {
 struct TrendingCategoryCard: View {
     let category: WorkoutCategory
     var isSelected: Bool = false
-
+    
     var body: some View {
         VStack(spacing: 6) {
             Image(caseInsensitive: category.imageName)
@@ -137,7 +136,7 @@ struct TrendingCategoryCard: View {
                     Circle()
                         .stroke(isSelected ? Color.fitspinBlue : .clear, lineWidth: 3)
                 )
-
+            
             Text(category.title)
                 .foregroundColor(.white)
                 .font(.caption2)
@@ -149,7 +148,6 @@ struct TrendingCategoryCard: View {
         .cornerRadius(10)
     }
 }
-
 
 #Preview {
     FilterView()

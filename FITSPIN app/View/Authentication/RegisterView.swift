@@ -24,13 +24,13 @@ struct RegisterView: View {
             //ensure the form scrolls on smaller screens
             ScrollView {
                 VStack(spacing: 30) {
-                    //logo
+                    
                     Image("FITSPIN_logo")
                         .resizable()
                         .scaledToFit()
                         .frame(width: 180)
                         .padding(.top, 40)
-                    //text heading
+                    
                     VStack(spacing: 8) {
                         Text("Join our fitness community!")
                             .font(.headline)
@@ -75,7 +75,7 @@ struct RegisterView: View {
                     
                     //Sign Up Button
                     Button("Sign Up") {
-                        // Validation
+                        //Validation
                         guard !fullName.isEmpty,
                               !email.isEmpty,
                               !password.isEmpty
@@ -100,19 +100,19 @@ struct RegisterView: View {
                     }
                     
                     HStack(spacing: 4) {
-                      Text("Already have an account?")
-                        .foregroundColor(.fitspinOffWhite.opacity(0.7))
-                      NavigationLink("Log In") {
-                        LoginView()    //login screen
-                          .environmentObject(authVM)
-                      }
-                      .font(.subheadline).bold()
-                      .foregroundColor(.fitspinYellow)
+                        Text("Already have an account?")
+                            .foregroundColor(.fitspinOffWhite.opacity(0.7))
+                        NavigationLink("Log In") {
+                            LoginView()    //login screen
+                                .environmentObject(authVM)
+                        }
+                        .font(.subheadline).bold()
+                        .foregroundColor(.fitspinYellow)
                     }
                     .padding(.top, 8)
                     
                     
-                    //Swift divider is vertical by default so use an thin rectangle
+                    //Swift divider is vertical by default so using a thin rectangle
                     HStack(alignment: .center) {
                         Rectangle()
                             .fill(Color.fitspinOffWhite)
@@ -127,19 +127,18 @@ struct RegisterView: View {
                     }
                     .padding(.horizontal)
                     
-                    
                     VStack(spacing: 16) {
                         SocialSignInButton(
                             text: "Continue with Google",
                             icon: Image("googlelogo")
                         ) {
-                            // Google action
+                            //Google action
                         }
                         SocialSignInButton(
                             text: "Continue with Apple",
                             icon: Image("applelogo")
                         ) {
-                            // Apple action
+                            //Apple action
                         }
                     }
                     .padding(.horizontal)

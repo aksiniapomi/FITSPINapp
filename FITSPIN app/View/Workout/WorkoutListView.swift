@@ -8,7 +8,7 @@ import SwiftUI
 
 struct WorkoutListView: View {
     let workouts: [Workout]
-
+    
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 12) {

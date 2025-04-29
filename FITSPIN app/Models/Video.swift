@@ -12,4 +12,3 @@ struct Video: Codable, Identifiable {
     let exercise: Int
     let video: URL
 }
-

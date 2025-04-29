@@ -40,7 +40,7 @@ extension Color {
             g = (intValue >> 8)  & 0xFF
             b =  intValue        & 0xFF
         default:
-            // Fallback to white if the string is invalid
+            //Fallback to white if the string is invalid
             a = 255; r = 255; g = 255; b = 255
         }
         
@@ -54,7 +54,8 @@ extension Color {
     }
 }
 
-// Common button styling
+//Common button styling
+
 //Filled tangerine button
 struct FPOutlineTangerineButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {

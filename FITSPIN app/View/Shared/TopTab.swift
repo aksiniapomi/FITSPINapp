@@ -12,4 +12,3 @@ enum TopTab: String {
     case favourites
     case notifications
 }
-

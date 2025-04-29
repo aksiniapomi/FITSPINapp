@@ -8,7 +8,6 @@ import Foundation
 import FirebaseAuth
 import FirebaseFirestore
 
-
 @MainActor
 class AuthViewModel: ObservableObject {
     @Published private(set) var user: User?
@@ -67,20 +66,18 @@ class AuthViewModel: ObservableObject {
     
     //Sends a password reset email to the given address
     func resetPassword(for email: String) async {
-      isLoading   = true
-      authError   = nil
-     passwordResetMessage    = nil
-      defer { isLoading = false }
-
-      do {
-        try await Auth.auth().sendPasswordReset(withEmail: email)
-          passwordResetMessage = "A password reset link has been sent to \(email)"
-      } catch {
-        authError = error.localizedDescription
-      }
+        isLoading   = true
+        authError   = nil
+        passwordResetMessage    = nil
+        defer { isLoading = false }
+        
+        do {
+            try await Auth.auth().sendPasswordReset(withEmail: email)
+            passwordResetMessage = "A password reset link has been sent to \(email)"
+        } catch {
+            authError = error.localizedDescription
+        }
     }
-  
-    
     
     func deleteAccount() async {
         isLoading = true

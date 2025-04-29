@@ -9,13 +9,13 @@ import Foundation
 
 struct WeatherResponse: Decodable {
     struct Main: Decodable {
-        let temp: Double   // must be present
+        let temp: Double   //must be present
     }
     struct Condition: Decodable {
-        let id: Int        // must be present
+        let id: Int        //must be present
     }
     
-    let weather: [Condition]  // array with at least one element
+    let weather: [Condition]  //array with at least one element
     let main: Main
     
 }
@@ -42,8 +42,8 @@ actor WeatherService {
         .object(forInfoDictionaryKey: "OPEN_WEATHER_API_KEY") as? String
     
     init() {
-       print("OPEN_WEATHER_API_KEY is", apiKey ?? "nil")
-     }
+        print("OPEN_WEATHER_API_KEY is", apiKey ?? "nil")
+    }
     
     func currentWeather(lat: Double, lon: Double) async throws -> WeatherResponse {
         guard let key = apiKey,
@@ -56,7 +56,7 @@ actor WeatherService {
             URLQueryItem(name: "lat", value: "\(lat)"),
             URLQueryItem(name: "lon", value: "\(lon)"),
             URLQueryItem(name: "appid", value: key),
-            URLQueryItem(name: "units", value: "metric")        //metric for °C
+            URLQueryItem(name: "units", value: "metric") //metric for °C
         ]
         
         let url = comps.url!

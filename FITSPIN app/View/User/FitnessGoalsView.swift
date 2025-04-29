@@ -8,14 +8,13 @@
 import SwiftUI
 
 struct FitnessGoalsView: View {
-    // allow multiple selection
+    //allow multiple selection
     @Binding var selectedGoals: Set<Goal>
     
     @Environment(\.dismiss) private var dismiss
-    
     @EnvironmentObject var profileVM: ProfileViewModel
     
-    // define your goal options
+    //define goal options
     enum Goal: String, CaseIterable, Identifiable {
         case fatLoss   = "Fat Loss"
         case weightGain = "Weight Gain"
@@ -31,14 +30,13 @@ struct FitnessGoalsView: View {
             Color.fitspinBackground.ignoresSafeArea()
             
             VStack(spacing: 24) {
-                // Logo
+                
                 Image("FITSPIN_logo")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 180)
                     .padding(.top, 16)
                 
-                // Heading
                 VStack(spacing: 4) {
                     Text("Select your fitness goal")
                         .font(.headline)
@@ -47,7 +45,6 @@ struct FitnessGoalsView: View {
                         .font(.subheadline)
                         .foregroundColor(.fitspinTangerine)
                 }
-                
                 
                 // Goal buttons, multiple-select radio list
                 VStack(spacing: 16) {
@@ -98,7 +95,7 @@ struct FitnessGoalsView: View {
                 .padding(.horizontal)
                 
                 Spacer()
-                // Confirm
+                
                 Button("Confirm") {
                     Task { await profileVM.save() }
                     // handle selectedGoals
@@ -112,7 +109,7 @@ struct FitnessGoalsView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true) 
+        .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {
@@ -127,8 +124,6 @@ struct FitnessGoalsView: View {
             }
         }
     }
-    
-    
     
     private func toggle(_ goal: Goal) {
         if selectedGoals.contains(goal) {
