@@ -14,6 +14,7 @@ class AuthViewModel: ObservableObject {
     @Published private(set) var user: User?
     @Published var isLoading = false
     @Published var authError: String?
+    @Published var passwordResetMessage: String?
     
     private let service = AuthService.shared
     
@@ -63,6 +64,23 @@ class AuthViewModel: ObservableObject {
             authError = "\(error.localizedDescription)"
         }
     }
+    
+    //Sends a password reset email to the given address
+    func resetPassword(for email: String) async {
+      isLoading   = true
+      authError   = nil
+     passwordResetMessage    = nil
+      defer { isLoading = false }
+
+      do {
+        try await Auth.auth().sendPasswordReset(withEmail: email)
+          passwordResetMessage = "A password reset link has been sent to \(email)"
+      } catch {
+        authError = error.localizedDescription
+      }
+    }
+  
+    
     
     func deleteAccount() async {
         isLoading = true

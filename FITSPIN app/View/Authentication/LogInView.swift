@@ -80,9 +80,10 @@ struct LoginView: View {
                     
                     // forgot / switch to register
                     HStack {
-                        Button("Forgot Password?") {
-                            
-                        }
+                        NavigationLink("Forgot Password?", destination: ResetPasswordView())
+                            .font(.footnote)
+                            .padding(.top, 4)
+                        
                         Spacer()
                         NavigationLink("Sign Up", destination: RegisterView())
                             .foregroundColor(.fitspinTangerine)
