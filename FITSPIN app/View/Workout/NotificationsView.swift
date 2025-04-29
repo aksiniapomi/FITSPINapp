@@ -111,4 +111,3 @@ struct NotificationsView_Previews: PreviewProvider {
             .preferredColorScheme(.dark)
     }
 }
-

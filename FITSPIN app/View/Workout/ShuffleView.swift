@@ -1,9 +1,3 @@
-//
-//  ShuffleView.swift (Timer Outside + UI Polish)
-//  FITSPIN app
-//
-//  Created by Derya on 28/04/2025. Improved UI and fixed video flicker caused by timer.
-
 import SwiftUI
 import AVKit
 
@@ -17,6 +11,7 @@ struct ShuffleView: View {
     @State private var timerRunning = false
     @State private var timeRemaining = 60
     @State private var showDetail = false
+    @State private var player: AVPlayer?
 
     var body: some View {
         NavigationStack {
@@ -47,12 +42,21 @@ struct ShuffleView: View {
                         ExerciseDetailLoadedView(workout: vm.workouts[currentCardIndex])
                             .environmentObject(completedStore)
                     }
+                    .onAppear {
+                        setPlayer(for: currentCardIndex)
+                    }
+                    .onChange(of: currentCardIndex) { newIndex in
+                        setPlayer(for: newIndex)
+                    }
                 } else if let error = vm.errorMessage {
                     Text(error)
                         .foregroundColor(.fitspinTangerine)
                         .multilineTextAlignment(.center)
                         .padding()
                 }
+            }
+            .onDisappear {
+                player?.pause()
             }
             .onAppear {
                 Task { await vm.fetchWeatherAndWorkouts() }
@@ -88,8 +92,8 @@ struct ShuffleView: View {
 
     private func workoutCard(_ workout: Workout) -> some View {
         VStack(spacing: 16) {
-            if let videoURL = workout.videoURL {
-                VideoPlayer(player: AVPlayer(url: videoURL))
+            if let player = player {
+                VideoPlayer(player: player)
                     .frame(height: 220)
                     .clipShape(RoundedRectangle(cornerRadius: 20))
             }
@@ -110,11 +114,21 @@ struct ShuffleView: View {
                     .font(.footnote)
                     .foregroundColor(.gray)
 
-                Button("More Info") {
+                Button(action: {
                     showDetail = true
+                }) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "info.circle.fill")
+                        Text("More Info")
+                            .font(.subheadline.bold())
+                    }
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(Color.fitspinBlue)
+                    .clipShape(Capsule())
                 }
-                .font(.caption)
-                .padding(.top, 6)
+                .padding(.top, 8)
             }
         }
         .padding()
@@ -216,5 +230,16 @@ struct ShuffleView: View {
     private func resetTimer() {
         timeRemaining = 60
         timerRunning = false
+    }
+
+    private func setPlayer(for index: Int) {
+        guard let url = vm.workouts[safe: index]?.videoURL else { return }
+        player = AVPlayer(url: url)
+        player?.isMuted = true
+    }
+}
+extension Collection {
+    subscript(safe index: Index) -> Element? {
+        return indices.contains(index) ? self[index] : nil
     }
 }

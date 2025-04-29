@@ -27,18 +27,17 @@ class FilterViewModel: ObservableObject {
     }
 
     func fetchInitialData() async {
+        async let workoutsTask = WgerAPI.shared.fetchWorkouts()
+        async let categoriesTask = WgerAPI.shared.fetchCategories()
+
         do {
-            let workouts = try await WgerAPI.shared.fetchWorkouts()
+            let (workouts, apiCategories) = try await (workoutsTask, categoriesTask)
             self.allWorkouts = workouts
             self.filteredWorkouts = workouts
 
-            // Create categories from actual data
-            let uniqueCategories = Set(workouts.map(\ .category))
-            self.categories = uniqueCategories.enumerated().map { index, title in
-                ExerciseCategory(id: index, name: title)
-            }
+            self.categories = apiCategories.sorted(by: { $0.name < $1.name })
         } catch {
-            print("❌ Failed to load workouts:", error.localizedDescription)
+            print("❌ Failed to load workouts or categories:", error.localizedDescription)
         }
     }
 
@@ -93,11 +92,9 @@ class FilterViewModel: ObservableObject {
 
     func applyCategory(_ name: String) {
         if selectedCategory == name {
-            //  Tapped the same filter: clear it
             selectedCategory = nil
             filteredWorkouts = allWorkouts
         } else {
-            //  New filter
             selectedCategory = name
             filteredWorkouts = allWorkouts.filter {
                 $0.category.localizedCaseInsensitiveContains(name)

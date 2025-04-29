@@ -66,7 +66,7 @@ struct HomeView: View {
                 Spacer()
             }
             .padding(.leading, 30)
-            .padding(.top, 80)
+            Spacer()
 
             Text("HELLO, \(userName.uppercased())!")
                 .font(.title2).bold()
@@ -98,7 +98,7 @@ struct HomeView: View {
                     .frame(width: 200)
                     .padding()
                     .background(Color.fitspinTangerine)
-                    .foregroundColor(.white)
+                    .foregroundColor(.fitspinBackground)
                     .cornerRadius(12)
             }
             .buttonStyle(PlainButtonStyle()) // Optional to preserve your custom look
@@ -106,8 +106,10 @@ struct HomeView: View {
             Spacer()
         }
         .padding(.top, 16)
-        .padding(.bottom, 32)
+        .padding(.bottom, 100)
+
     }
+    
 }
 
 struct HomeView_Previews: PreviewProvider {
