@@ -4,15 +4,24 @@
 //
 //  Created by Derya Baglan on 26/04/2025.
 //
+
+
 import SwiftUI
 
 struct SuggestedWorkoutBanner: View {
-    var weatherCondition: String
+    var weather: Weather?
+
+    private var suggestedType: String {
+        guard let weather = weather else { return "Workout" }
+        return weather.temperature >= 20 ? "Park Workout" : "Indoor Training"
+    }
+
+    private var imageName: String {
+        guard let weather = weather else { return "indoorWorkout" }
+        return weather.temperature >= 20 ? "parkWorkout" : "indoorWorkout"
+    }
 
     var body: some View {
-        let suggestedType = (weatherCondition == "sunny") ? "Park Workout" : "Indoor Training"
-        let imageName = (weatherCondition == "sunny") ? "parkWorkout" : "indoorWorkout"
-
         VStack(alignment: .leading, spacing: 8) {
             Text("Suggested Workout of the Day")
                 .font(.headline)
@@ -20,7 +29,7 @@ struct SuggestedWorkoutBanner: View {
                 .padding(.horizontal)
 
             ZStack(alignment: .bottomLeading) {
-                Image(imageName)
+                Image(caseInsensitive: imageName)
                     .resizable()
                     .scaledToFill()
                     .frame(height: 160)

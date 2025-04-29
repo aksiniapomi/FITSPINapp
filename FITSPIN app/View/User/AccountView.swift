@@ -2,8 +2,6 @@
 //  AccountView.swift
 //  FITSPIN app
 //
-//  Created by Derya Baglan on 21/04/2025.
-//
 
 import SwiftUI
 import FirebaseAuth
@@ -12,14 +10,13 @@ struct AccountView: View {
     @EnvironmentObject private var authVM: AuthViewModel
     @EnvironmentObject private var homeVM: HomeViewModel
     @EnvironmentObject private var completedStore: CompletedWorkoutsStore
-    @EnvironmentObject private var hydVM:  HydrationViewModel
+    @EnvironmentObject private var hydVM: HydrationViewModel
     @EnvironmentObject private var profileVM: ProfileViewModel
-  //  @StateObject private var notificationsVM = NotificationsViewModel()
     
     @State private var showingChart = false
     @State private var showCalendar = false
+    @State private var showingDeleteAlert = false
     
-    //IOS16 ShareLink functionality
     private let repoURL = URL(string: "https://github.com/aksiniapomi/FITSPINapp.git")!
     
     private var completedWorkoutsCount: Int {
@@ -40,16 +37,7 @@ struct AccountView: View {
                 Color.fitspinBackground.ignoresSafeArea()
                 
                 VStack(spacing: 0) {
-                    //Top Bar
                     HStack {
-                        Button {
-                            // open side menu
-                        } label: {
-                            Image(systemName: "line.horizontal.3")
-                                .font(.title2)
-                                .foregroundColor(.fitspinOffWhite)
-                        }
-                        
                         Spacer()
                         
                         Text("Account")
@@ -66,7 +54,6 @@ struct AccountView: View {
                     
                     Spacer()
                     
-                    // Profile Header
                     HStack(spacing: 12) {
                         Image("profile_picture")
                             .resizable()
@@ -84,11 +71,10 @@ struct AccountView: View {
                                 .font(.subheadline)
                                 .foregroundColor(.fitspinYellow)
                             
-                            // show age/height/weight line
                             Text("\(profileVM.age) yrs • \(profileVM.height) cm • \(profileVM.weight) kg")
                                 .font(.caption)
                                 .foregroundColor(.fitspinYellow.opacity(0.8))
-                                                    
+                            
                             HStack(spacing: 4) {
                                 Image(systemName: "mappin.and.ellipse")
                                 Text(homeVM.city ?? "Unknown city")
@@ -104,9 +90,7 @@ struct AccountView: View {
                     
                     Spacer()
                     
-                    //Menu Items
                     VStack(spacing: 30) {
-                        // Completed Workouts with calendar
                         HStack {
                             NavigationLink {
                                 CompletedWorkoutsView()
@@ -129,9 +113,7 @@ struct AccountView: View {
                             }
                         }
                         
-                        //User Details
                         NavigationLink {
-                            
                             UserInfoView(
                                 age: $profileVM.age,
                                 height: $profileVM.height,
@@ -143,35 +125,35 @@ struct AccountView: View {
                                        label: "Fitness level and User details",
                                        value: profileVM.fitnessLevel,
                                        valueColor: .fitspinBlue)
-                            
                         }
-                            //Goals
-                            NavigationLink {
-                                FitnessGoalsView(selectedGoals: $profileVM.goals)
-                            } label: {
-                                
+                        
+                        NavigationLink {
+                            FitnessGoalsView(selectedGoals: $profileVM.goals)
+                        } label: {
+                            HStack {
                                 AccountRow(icon: "target",
                                            label: "Goals",
                                            value: profileVM.goals
-                                    .map(\.rawValue)
+                                    .map(\ .rawValue)
                                     .sorted()
                                     .joined(separator: ", "),
                                            valueColor: .fitspinBlue)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(.fitspinYellow)
                             }
-                                //Hydration
-                                AccountRow(
-                                    icon: "drop",
-                                    label: "Hydration",
-                                    value: String(format: "%.1f L", hydVM.todayIntake),
-                                    trailingIcon: "calendar"
-                                )
-                                .onTapGesture { showingChart = true }
-                                
-                           
-                        // Notifications - NavigationLink
+                        }
+                        
+                        AccountRow(
+                            icon: "drop",
+                            label: "Hydration",
+                            value: String(format: "%.1f L", hydVM.todayIntake),
+                            trailingIcon: "calendar"
+                        )
+                        .onTapGesture { showingChart = true }
+                        
                         NavigationLink {
                             NotificationsView()
-                              //  .environmentObject(notificationsVM)
                         } label: {
                             HStack {
                                 AccountRow(
@@ -185,61 +167,79 @@ struct AccountView: View {
                                     .foregroundColor(.fitspinYellow)
                             }
                         }
-                                // 💬 Feedback
-                                AccountRow(
-                                    icon: "bubble.left",
-                                    label: "Feedback",
-                                    value: nil
-                                )
-                                
-                                // 🚪 Log Out
-                                AccountRow(
-                                    icon: "arrow.backward.circle",
-                                    label: "Log Out",
-                                    value: nil
-                                )
-                                .onTapGesture {
-                                    authVM.signOut()
+                        
+                        AccountRow(
+                            icon: "bubble.left",
+                            label: "Feedback",
+                            value: nil
+                        )
+                        //account deletion
+                        AccountRow(
+                            icon: "trash.circle",
+                            label: "Delete Account",
+                            value: nil
+                        )
+                        .foregroundColor(.red)
+                        .onTapGesture {
+                            showingDeleteAlert = true
+                        }
+                        .alert("Delete Account?", isPresented: $showingDeleteAlert) {
+                            Button("Delete", role: .destructive) {
+                                Task {
+                                    do {
+                                        try await authVM.deleteAccount()
+                                    } catch {
+                                        print("Error deleting account:", error)
+                                    }
                                 }
                             }
-                            .padding(.horizontal)
-                            
-                            Spacer(minLength: 50)
-                            
-                            //refer action
-                            //  ShareLink
-                            ShareLink(
-                                item: repoURL,
-                                preview: SharePreview(
-                                    "Check out FITSPIN on GitHub!",
-                                    image: Image("FITSPIN_logo")
-                                )
-                            ) {
-                                HStack {
-                                    Image(systemName: "link")
-                                    Text("Refer a friend")
-                                        .bold()
-                                    
-                                }
-                                .foregroundColor(.fitspinYellow)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.bottom, 12)
-                            .background(Color.fitspinBackground)
+                            Button("Cancel", role: .cancel) {}
+                        } message: {
+                            Text("This will permanently remove your data and sign you out")
+                        }
+                        
+                        
+                        AccountRow(
+                            icon: "arrow.backward.circle",
+                            label: "Log Out",
+                            value: nil
+                        )
+                        .onTapGesture {
+                            authVM.signOut()
                         }
                     }
-                    .sheet(isPresented: $showingChart) {
-                        IntakeChartView().environmentObject(hydVM)
+                    .padding(.horizontal)
+                    
+                    Spacer(minLength: 50)
+                    
+                    ShareLink(
+                        item: repoURL,
+                        preview: SharePreview(
+                            "Check out FITSPIN on GitHub!",
+                            image: Image("FITSPIN_logo")
+                        )
+                    ) {
+                        HStack {
+                            Image(systemName: "link")
+                            Text("Refer a friend")
+                                .bold()
+                        }
+                        .foregroundColor(.fitspinYellow)
                     }
-                    .sheet(isPresented: $showCalendar) {
-                        CompletedWorkoutCalendarView()
-                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.bottom, 30)
+                    .background(Color.fitspinBackground)
                 }
             }
         }
+        .sheet(isPresented: $showingChart) {
+            IntakeChartView().environmentObject(hydVM)
+        }
+        .sheet(isPresented: $showCalendar) {
+            CompletedWorkoutCalendarView()
+        }
+    }
     
-    
-    //Reusable Row
     fileprivate struct AccountRow: View {
         let icon: String
         let label: String
@@ -271,19 +271,16 @@ struct AccountView: View {
             .font(.subheadline)
         }
     }
-    
-    // Preview
-    struct AccountView_Previews: PreviewProvider {
-        static var previews: some View {
-            AccountView()
-                .preferredColorScheme(.dark)
-                .environmentObject(AuthViewModel())
-                .environmentObject(HomeViewModel())
-                .environmentObject(HydrationViewModel())
-                .environmentObject(ProfileViewModel())
-                .environmentObject(CompletedWorkoutsStore())
-            
-        }
+}
+struct AccountView_Previews: PreviewProvider {
+    static var previews: some View {
+        AccountView()
+            .preferredColorScheme(.dark)
+            .environmentObject(AuthViewModel())
+            .environmentObject(HomeViewModel())
+            .environmentObject(HydrationViewModel())
+            .environmentObject(ProfileViewModel())
+            .environmentObject(CompletedWorkoutsStore())
     }
-    
+}
 

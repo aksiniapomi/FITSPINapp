@@ -30,11 +30,17 @@ struct Weather {
 
         var description: String {
             switch self {
-                case .clear:         return "Perfect weather for a park workout!"
-                case .partlyCloudy:  return "A few clouds-still great outside"
-                case .rain:          return "Might want an indoor session today"
-                case .snow:          return "Wrap up warm or hit the treadmill!"
-                case .thunderstorm:  return "Better stay inside-storm’s coming."
+                case .clear:
+                    return "Clear skies and great vibes. \nLet’s get moving today!"
+                case .partlyCloudy:
+                    return "A few clouds won’t stop us. \nPerfect time for a refreshing session!"
+                case .rain:
+                    return "Rainy days call for cozy workouts. \nLet’s sweat it out !"
+                case .snow:
+                    return "Snowflakes and strong reps. \nStay warm and train smart today!"
+                case .thunderstorm:
+                    return "Storm’s rolling in — time to stay safe. \nLet’s power through an workout!"
+
             }
         }
     }

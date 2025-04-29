@@ -5,6 +5,7 @@
 //  Created by Derya Baglan on 26/04/2025.
 //
 
+
 import SwiftUI
 import AVKit
 
@@ -61,10 +62,12 @@ struct FavouriteWorkoutCard: View {
 
             // 💔 Heart Toggle
             Button {
-                favourites.remove(workout: workout)
+                favourites.toggle(workout)
             } label: {
-                Image(systemName: "heart.fill")
+                Image(systemName: favourites.isFavourite(workout) ? "heart.fill" : "heart")
                     .foregroundColor(.fitspinTangerine)
+                    .scaleEffect(favourites.isFavourite(workout) ? 1.2 : 1.0)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.5), value: favourites.isFavourite(workout))
             }
         }
         .padding()
@@ -78,5 +81,4 @@ struct FavouriteWorkoutCard: View {
         return df.string(from: date)
     }
 }
-
 

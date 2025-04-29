@@ -4,6 +4,8 @@
 //
 //  Created by Derya Baglan on 21/04/2025.
 //
+
+
 import SwiftUI
 
 struct FavouritesView: View {
@@ -66,17 +68,7 @@ struct FavouritesView: View {
                 ScrollView {
                     LazyVStack(spacing: 16) {
                         ForEach(sortedFavourites) { workout in
-                            FavouriteWorkoutCard(workout: workout)
-                                .onTapGesture {
-                                    showDetail = workout
-                                }
-                                .swipeActions(edge: .trailing) {
-                                    Button(role: .destructive) {
-                                        favouritesStore.remove(workout: workout)
-                                    } label: {
-                                        Label("Delete", systemImage: "trash")
-                                    }
-                                }
+                            workoutCard(for: workout)
                         }
                     }
                     .padding(.horizontal)
@@ -88,7 +80,20 @@ struct FavouritesView: View {
             .background(Color.fitspinBackground.ignoresSafeArea())
         }
     }
+
+    @ViewBuilder
+    private func workoutCard(for workout: Workout) -> some View {
+        FavouriteWorkoutCard(workout: workout)
+            .onTapGesture {
+                showDetail = workout
+            }
+            .swipeActions(edge: .trailing) {
+                Button(role: .destructive) {
+                    favouritesStore.toggle(workout)
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
+            }
+    }
 }
-
-
 

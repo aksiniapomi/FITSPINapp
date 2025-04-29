@@ -2,8 +2,7 @@
 //  HomeView.swift
 //  FITSPIN app
 //
-//  Created by Derya Baglan on 21/04/2025.
-//
+//  Updated by ChatGPT on 28/04/2025 to include navigation to ShuffleView.
 
 import SwiftUI
 import CoreLocation
@@ -11,102 +10,102 @@ import CoreLocation
 struct HomeView: View {
     @StateObject private var vm = HomeViewModel()
     @EnvironmentObject private var authVM: AuthViewModel
-  
-    // derive a name from Firebase.User
+    @EnvironmentObject private var completedStore: CompletedWorkoutsStore
+    @EnvironmentObject private var favouritesStore: FavouritesStore
+
+    @State private var showShuffle = false
+
     private var userName: String {
-      if let displayName = authVM.user?.displayName,
-         !displayName.isEmpty {
-        return displayName
-      }
-      // fallback to the part before the “@” in their email
-      let email = authVM.user?.email ?? "User"
-      return String(email.split(separator: "@").first ?? Substring(email))
+        if let displayName = authVM.user?.displayName, !displayName.isEmpty {
+            return displayName
+        }
+        let email = authVM.user?.email ?? "User"
+        return String(email.split(separator: "@").first ?? Substring(email))
     }
 
     var body: some View {
-        ZStack {
-            Color.fitspinBackground.ignoresSafeArea()
+        NavigationStack {
+            ZStack {
+                Color.fitspinBackground.ignoresSafeArea()
 
-            if vm.isLoading {
-                ProgressView()
-                    .progressViewStyle(.circular)
-                    .tint(.fitspinYellow)
+                if vm.isLoading {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .tint(.fitspinYellow)
+                } else if let weather = vm.weather {
+                    content(for: weather)
+                } else if let error = vm.errorMessage {
+                    Text(error)
+                        .foregroundColor(.fitspinTangerine)
+                        .multilineTextAlignment(.center)
+                        .padding()
+                } else {
+                    Color.clear
+                        .onAppear {
+                            Task { await vm.fetchWeather() }
+                        }
+                }
             }
-            else if let weather = vm.weather {
-                content(for: weather)
-            }
-            else if let error = vm.errorMessage {
-                Text(error)
-                    .foregroundColor(.fitspinTangerine)
-                    .multilineTextAlignment(.center)
-                    .padding()
-            }
-            else {
-                Color.clear
-                    .onAppear {
-                        Task { await vm.fetchWeather() }
-                    }
-            }
+        }
+        .sheet(isPresented: $showShuffle) {
+            ShuffleView()
+                .environmentObject(authVM)
+                .environmentObject(completedStore)
+                .environmentObject(favouritesStore)
+                .environmentObject(vm)
+                .presentationDetents([.large])
         }
     }
 
     @ViewBuilder
-    private func content(for w: Weather) -> some View {
+    private func content(for weather: Weather) -> some View {
         VStack(spacing: 24) {
-            // Logo
             HStack {
-                    Image("fitspintext")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 120)
+                Image("fitspintext")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 120)
                 Spacer()
-                }
-                .padding(.leading, 30)  
-                .padding(.top, 80)
-            
-            // Greeting
+            }
+            .padding(.leading, 30)
+            Spacer()
+
             Text("HELLO, \(userName.uppercased())!")
-                .font(.title2).bold()
+                .font(.title2.bold())
                 .foregroundColor(.fitspinBlue)
 
-            // Weather Icon
-            Image(systemName: w.condition.iconName)
+            Image(systemName: weather.condition.iconName)
                 .resizable()
                 .scaledToFit()
                 .frame(width: 120, height: 120)
                 .foregroundColor(.fitspinYellow)
 
-            // Temperature
-            Text(String(format: "%.0fºC", w.temperature))
+            Text(String(format: "%.0fºC", weather.temperature))
                 .font(.system(size: 48, weight: .semibold))
                 .foregroundColor(.fitspinOffWhite)
 
-            // Description
-            Text(w.condition.description)
+            Text(weather.condition.description)
                 .font(.subheadline)
                 .foregroundColor(.fitspinYellow.opacity(0.8))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
 
-            // Action button
-            Button("LET’S GO!") {
-                // Navigate to Workout Cards tab, e.g. via a binding or router
+            Button(action: {
+                showShuffle = true
+            }) {
+                Text("LET'S GO!")
+                    .frame(width: 200)
+                    .padding()
+                    .background(Color.fitspinTangerine)
+                    .foregroundColor(.fitspinBackground)
+                    .cornerRadius(12)
+                    .shadow(radius: 10)
             }
-           .buttonStyle(FPFilledButtonStyle())
-            .frame(width: 200)
+            .buttonStyle(PlainButtonStyle())
 
-     Spacer()
-            
+            Spacer()
         }
         .padding(.top, 16)
-        .padding(.bottom, 32)
+        .padding(.bottom, 100)
     }
 }
-
-struct HomeView_Previews: PreviewProvider {
-    static var previews: some View {
-        HomeView()
-            .preferredColorScheme(.dark)
-    }
-}
-

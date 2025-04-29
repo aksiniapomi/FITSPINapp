@@ -27,7 +27,7 @@ struct FilterView: View {
     private var contentBody: some View {
         VStack(alignment: .leading, spacing: 24) {
             searchBar
-            SuggestedWorkoutBanner(weatherCondition: "sunny")
+            SuggestedWorkoutBanner(weather: vm.weather)
             trendingCategories
             workoutResults
         }
@@ -128,7 +128,7 @@ struct TrendingCategoryCard: View {
 
     var body: some View {
         VStack(spacing: 6) {
-            Image(category.imageName)
+            Image(caseInsensitive: category.imageName)
                 .resizable()
                 .scaledToFill()
                 .frame(width: 70, height: 70)

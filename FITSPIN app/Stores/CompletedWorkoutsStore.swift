@@ -5,43 +5,56 @@
 //  Created by Derya Baglan on 26/04/2025.
 //
 
-
 import Foundation
 import SwiftUI
 
-struct CompletedWorkout: Identifiable, Codable {
-    let id = UUID()
-    let exerciseId: Int
-    let completedAt: Date
-
-    var dateOnly: Date {
-        Calendar.current.startOfDay(for: completedAt)
-    }
-}
-
 final class CompletedWorkoutsStore: ObservableObject {
-    @AppStorage("completedWorkouts") private var storedData: Data = Data()
     @Published private(set) var completed: [CompletedWorkout] = []
 
+    private let service = WorkoutDatabaseService()
+
     init() {
-        load()
-    }
-
-    func add(_ workout: Workout) {
-        let entry = CompletedWorkout(exerciseId: workout.exerciseId, completedAt: Date())
-        completed.append(entry)
-        persist()
-    }
-
-    private func load() {
-        if let decoded = try? JSONDecoder().decode([CompletedWorkout].self, from: storedData) {
-            completed = decoded
+        Task { [weak self] in
+            await self?.load()
         }
     }
 
-    private func persist() {
-        if let encoded = try? JSONEncoder().encode(completed) {
-            storedData = encoded
+    func add(_ workout: Workout) {
+        Task { [weak self] in
+            try? await self?.service.addCompleted(workout: workout)
+            await self?.load()
+            // 🎉 After saving, send a notification!
+            DispatchQueue.main.async {
+                NotificationsViewModel.shared.add(
+                    type: .workoutCompleted,
+                    message: "🎉 You completed \(workout.name)! Keep it up!",
+                    date: Date()
+                )
+            }
+        }
+    }
+
+    func remove(_ workout: Workout) {
+        Task { [weak self] in
+            try? await self?.service.removeCompleted(workout: workout)
+            await self?.load()
+        }
+    }
+
+    func isCompletedToday(_ workout: Workout) -> Bool {
+        let today = Calendar.current.startOfDay(for: Date())
+        return completed.contains { $0.exerciseId == workout.exerciseId && Calendar.current.isDate($0.completedAt, inSameDayAs: today) }
+    }
+
+
+    private func load() async {
+        do {
+            let loaded = try await service.fetchCompleted()
+            DispatchQueue.main.async { [weak self] in
+                self?.completed = loaded
+            }
+        } catch {
+            print("❌ Failed to load completed workouts: \(error)")
         }
     }
 }

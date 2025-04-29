@@ -3,29 +3,30 @@
 //  Created by Derya Baglan on 24/04/2025.
 //
 
-
-
 import Foundation
 
 @MainActor
 class ExerciseListViewModel: ObservableObject {
-    @Published var workouts: [Workout] = []
+    @Published private(set) var workouts: [Workout] = []
     @Published var isLoading: Bool = false
-    @Published var errorMessage: String? = nil
+    @Published var errorMessage: String?
 
     init() {
         Task { await loadWorkouts() }
     }
 
     func loadWorkouts() async {
+        guard workouts.isEmpty else { return } // Prevent unnecessary reloads
         isLoading = true
         defer { isLoading = false }
 
         do {
-            // One unified call — no need to stitch manually
-            self.workouts = try await WgerAPI.shared.fetchWorkouts()
+            workouts = try await WgerAPI.shared.fetchWorkouts()
+            errorMessage = nil
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = "Failed to load workouts: \(error.localizedDescription)"
         }
     }
 }
+
+

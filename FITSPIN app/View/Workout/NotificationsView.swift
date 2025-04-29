@@ -8,33 +8,43 @@
 import SwiftUI
 
 struct NotificationsView: View {
-    
     @EnvironmentObject private var notificationsVM: NotificationsViewModel
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
-        VStack(spacing: 0) {
-            
-            //top bar component
-            // TopBarView(selectedTab: .constant(.notifications))
+        ZStack {
+            Color.fitspinBackground.ignoresSafeArea()
             
             if notificationsVM.items.isEmpty {
-                Spacer()
-                Text("No notifications yet")
-                    .foregroundColor(.fitspinOffWhite.opacity(0.7))
-            } else {
-                ScrollView {
-                    LazyVStack(spacing: 12) {
-                        ForEach(notificationsVM.items) { note in
-                            NotificationCard(item: note)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                    }
-                    .padding()
+                VStack {
+                    Spacer()
+                    Text("No notifications yet")
+                        .font(.body)
+                        .foregroundColor(.fitspinOffWhite.opacity(0.7))
+                    Spacer()
                 }
+            } else {
+                List {
+                    // LazyVStack(spacing: 12) {
+                    ForEach(notificationsVM.items) { note in
+                        NotificationCard(item: note)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .swipeActions(edge: .trailing) {
+                                Button(role: .destructive) {
+                                    withAnimation {
+                                        notificationsVM.delete(note)
+                                    }
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
+                            .listRowBackground(Color.clear)
+                    }
+                }
+                .listStyle(.plain)
             }
         }
-        .background(Color.fitspinBackground.ignoresSafeArea())
+        
         .navigationTitle("Notifications")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
@@ -51,26 +61,23 @@ struct NotificationsView: View {
                 }
             }
         }
+        
     }
 }
 
 struct NotificationCard: View {
     let item: NotificationItem
     
-    // Date formatter for subtitle
     private var timeString: String {
-        let fmt = DateFormatter()
-        fmt.timeStyle = .short
-        fmt.dateStyle = .none
-        return fmt.string(from: item.date)
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        return formatter.string(from: item.date)
     }
     
-    // full date (e.g. “Apr 27, 2025”)
     private var dateString: String {
-        let fmt = DateFormatter()
-        fmt.dateStyle = .medium
-        fmt.timeStyle = .none
-        return fmt.string(from: item.date)
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        return formatter.string(from: item.date)
     }
     
     var body: some View {
@@ -78,7 +85,7 @@ struct NotificationCard: View {
             HStack {
                 Image(systemName: item.type.iconName)
                     .foregroundColor(.fitspinYellow)
-                Text(item.type.rawValue)
+                Text(item.type.title)
                     .font(.headline)
                     .foregroundColor(.fitspinYellow)
                 Spacer()
@@ -91,24 +98,12 @@ struct NotificationCard: View {
                 .font(.subheadline)
                 .foregroundColor(.fitspinOffWhite)
             
-            //date
             Text(dateString)
                 .font(.caption2)
                 .foregroundColor(.fitspinOffWhite.opacity(0.6))
         }
-        
-        
         .padding()
         .background(Color.gray.opacity(0.4))
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }
-
-struct NotificationsView_Previews: PreviewProvider {
-    static var previews: some View {
-        NotificationsView()
-            .environmentObject(NotificationsViewModel())
-            .preferredColorScheme(.dark)
-    }
-}
-
