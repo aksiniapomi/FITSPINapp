@@ -4,7 +4,6 @@
 //
 //  Created by Xenia Uni Account on 27/04/2025.
 //
-
 import Foundation
 
 enum NotificationType: String {
@@ -42,14 +41,18 @@ class NotificationsViewModel: ObservableObject {
 
     @Published private(set) var items: [NotificationItem] = []
 
+    private init() {} // Private initializer to enforce singleton
+
     func add(type: NotificationType, message: String, date: Date = Date()) {
         let notification = NotificationItem(type: type, message: message, date: date)
-        items.insert(notification, at: 0)
+        items.insert(notification, at: 0) // Insert newest at the top
     }
 
     func delete(_ item: NotificationItem) {
-        if let index = items.firstIndex(of: item) {
-            items.remove(at: index)
-        }
+        items.removeAll { $0.id == item.id }
+    }
+
+    func clearAll() {
+        items.removeAll()
     }
 }

@@ -4,66 +4,66 @@
 //
 //  Created by Xenia Uni Account on 26/04/2025.
 //
-
 import Foundation
 import SwiftUI
 
 @MainActor
 class HydrationViewModel: ObservableObject {
-  //Today’s total (used by HydrationView)
-  @Published var todayIntake: Double = 0
+    @Published var todayIntake: Double = 0
+    @Published private(set) var monthlyIntake: [String: [DailyIntake]] = [:]
 
-  //All loaded months’ data, keyed by "yyyy-MM"
-  @Published private(set) var monthlyIntake: [String: [DailyIntake]] = [:]
+    private let service = HydrationService()
+    private let formatter: DateFormatter = {
+        let fmt = DateFormatter()
+        fmt.dateFormat = "yyyy-MM"
+        return fmt
+    }()
 
-  private let service = HydrationService()
-
-  private func monthKey(from date: Date) -> String {
-    let fmt = DateFormatter()
-    fmt.dateFormat = "yyyy-MM"
-    return fmt.string(from: date)
-  }
-    
-    //Load a single day’s intake
-    func loadIntake(on date: Date) async {
-      do {
-        todayIntake = try await service.intake(on: date)
-      } catch {
-        print("failed to load intake for \(date):", error)
-      }
+    private func monthKey(for date: Date) -> String {
+        formatter.string(from: date)
     }
 
-  //Returns the array for that month (or empty if not yet loaded)
-  func intakeHistory(for month: Date) -> [DailyIntake] {
-    monthlyIntake[monthKey(from: month)] ?? []
-  }
-
-  //Call once on launch / onAppear of HydrationView
-  func loadToday() async {
-    do {
-      todayIntake = try await service.intake(on: Date())
-    } catch {
-      print("failed to load today’s intake:", error)
+    private func loadIntake(for date: Date) async {
+        do {
+            todayIntake = try await service.intake(on: date)
+        } catch {
+            print("❌ Failed to load intake for \(date):", error.localizedDescription)
+        }
     }
-  }
 
-    // Log a total for an arbitrary date
+    // ✅ Public safe function for the View to use
+    func reloadIntake(for date: Date) async {
+        await loadIntake(for: date)
+    }
+
+    func loadToday() async {
+        await loadIntake(for: Date())
+    }
+
+    func intakeHistory(for month: Date) -> [DailyIntake] {
+        monthlyIntake[monthKey(for: month)] ?? []
+    }
+
     func log(_ newTotal: Double, on date: Date) async {
-      todayIntake = newTotal
-      do {
-        try await service.set(intake: newTotal, for: date)
-      } catch {
-        print("failed to save intake:", error)
-      }
+        todayIntake = newTotal
+        do {
+            try await service.set(intake: newTotal, for: date)
+        } catch {
+            print("❌ Failed to save intake:", error.localizedDescription)
+        }
     }
 
-  //Load & cache a specific month’s history from Firebase
-  func loadHistory(for month: Date) async {
-    do {
-      let data = try await service.intakeHistory(monthOf: month)
-      monthlyIntake[monthKey(from: month)] = data
-    } catch {
-      print("failed to load history:", error)
+    func loadHistory(for month: Date) async {
+        let key = monthKey(for: month)
+        if monthlyIntake[key] != nil {
+            return
+        }
+        do {
+            let data = try await service.intakeHistory(monthOf: month)
+            monthlyIntake[key] = data
+        } catch {
+            print("❌ Failed to load history:", error.localizedDescription)
+        }
     }
-  }
 }
+

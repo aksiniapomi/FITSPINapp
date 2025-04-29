@@ -4,57 +4,56 @@
 //
 //  Created by Derya Baglan on 24/04/2025.
 //
-
 import Foundation
 
 @MainActor
 class ExerciseDetailViewModel: ObservableObject {
-    @Published var workout: Workout?
+    @Published private(set) var workout: Workout?
     @Published var isLoading = false
     @Published var errorMessage: String?
-    
+
     func loadWorkout(apiId: Int) async {
+        guard workout == nil else { return } // Prevent re-fetching if already loaded
         isLoading = true
         defer { isLoading = false }
-        
+
         do {
-            async let translations = WgerAPI.shared.fetchTranslations()
-            async let videos       = WgerAPI.shared.fetchVideos()
-            async let equipment    = WgerAPI.shared.fetchEquipment()
-            async let exercises    = WgerAPI.shared.fetchExercises() // ✅ This is key
-            async let categories   = WgerAPI.shared.fetchCategories()
-            async let comments     = WgerAPI.shared.fetchComments()
-            
-            let (trs, vids, eqs, exs, cats, cmts) = try await (translations, videos, equipment, exercises, categories, comments)
-            
-            guard let t = trs.first(where: { $0.exercise == apiId }) else {
+            async let translationsTask = WgerAPI.shared.fetchTranslations()
+            async let videosTask       = WgerAPI.shared.fetchVideos()
+            async let equipmentTask    = WgerAPI.shared.fetchEquipment()
+            async let exercisesTask    = WgerAPI.shared.fetchExercises()
+            async let categoriesTask   = WgerAPI.shared.fetchCategories()
+            async let commentsTask     = WgerAPI.shared.fetchComments()
+
+            let (translations, videos, equipmentList, exercises, categories, comments) =
+                try await (translationsTask, videosTask, equipmentTask, exercisesTask, categoriesTask, commentsTask)
+
+            guard let translation = translations.first(where: { $0.exercise == apiId }),
+                  let exercise = exercises.first(where: { $0.id == apiId }) else {
                 throw URLError(.badServerResponse)
             }
-            
-            let videoURL = vids.first(where: { $0.exercise == apiId })?.video
-            let commentList = cmts.filter { $0.translation == t.id }.map { $0.comment }
-            
-            // ✅ Match equipment through the Exercise object
-            let exercise = exs.first(where: { $0.id == apiId })
-            let equipmentMap = Dictionary(uniqueKeysWithValues: eqs.map { ($0.id, $0.name) })
-            let equipmentNames = exercise?.equipment.compactMap { equipmentMap[$0] } ?? []
-            
-            // Match category
-            let categoryMap = Dictionary(uniqueKeysWithValues: cats.map { ($0.id, $0.name) })
-            let category = categoryMap[exercise?.category ?? 0] ?? "General"
-            
-            // ✅ Create enriched Workout
-            let workout = Workout(
-                exerciseId: t.exercise,
-                name: t.name,
-                description: t.description,
+
+            let videoURL = videos.first(where: { $0.exercise == apiId })?.video
+            let commentList = comments.filter { $0.translation == translation.id }.map { $0.comment }
+
+            let equipmentMap = Dictionary(uniqueKeysWithValues: equipmentList.map { ($0.id, $0.name) })
+            let equipmentNames = exercise.equipment.compactMap { equipmentMap[$0] }
+
+            let categoryMap = Dictionary(uniqueKeysWithValues: categories.map { ($0.id, $0.name) })
+            let categoryName = categoryMap[exercise.category] ?? "General"
+
+            // Create the enriched workout model
+            self.workout = Workout(
+                exerciseId: translation.exercise,
+                name: translation.name,
+                description: translation.description,
                 videoURL: videoURL,
                 equipment: equipmentNames,
-                category: category,
+                category: categoryName,
                 comments: commentList
             )
-            
-            self.workout = workout
+            errorMessage = nil
+
         } catch {
             errorMessage = "⚠️ \(error.localizedDescription)"
         }

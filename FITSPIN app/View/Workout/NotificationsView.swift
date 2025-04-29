@@ -10,13 +10,19 @@ import SwiftUI
 struct NotificationsView: View {
     @EnvironmentObject private var notificationsVM: NotificationsViewModel
     @Environment(\.dismiss) private var dismiss
-
+    
     var body: some View {
-        VStack(spacing: 0) {
+        ZStack {
+            Color.fitspinBackground.ignoresSafeArea()
+            
             if notificationsVM.items.isEmpty {
-                Spacer()
-                Text("No notifications yet")
-                    .foregroundColor(.fitspinOffWhite.opacity(0.7))
+                VStack {
+                    Spacer()
+                    Text("No notifications yet")
+                        .font(.body)
+                        .foregroundColor(.fitspinOffWhite.opacity(0.7))
+                    Spacer()
+                }
             } else {
                 ScrollView {
                     LazyVStack(spacing: 12) {
@@ -36,7 +42,6 @@ struct NotificationsView: View {
                 }
             }
         }
-        .background(Color.fitspinBackground.ignoresSafeArea())
         .navigationTitle("Notifications")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
@@ -53,6 +58,7 @@ struct NotificationsView: View {
                 }
             }
         }
+
     }
 }
 

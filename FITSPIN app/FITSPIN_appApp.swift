@@ -20,10 +20,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         return true
     }
 }
-
 @main
 struct FITSPIN_appApp: App {
-    //  Firebase Bootstrap
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
     // Global ViewModels / Stores
@@ -32,10 +30,13 @@ struct FITSPIN_appApp: App {
     @StateObject private var hydVM = HydrationViewModel()
     @StateObject private var profileVM = ProfileViewModel()
     @StateObject private var notificationsVM = NotificationsViewModel.shared
-    
     @StateObject private var workoutStore = WorkoutStore()
     @StateObject private var favouritesStore = FavouritesStore()
     @StateObject private var completedStore = CompletedWorkoutsStore()
+
+    // ✅ New ones:
+    @StateObject private var filterVM = FilterViewModel()
+    @StateObject private var exerciseListVM = ExerciseListViewModel()
 
     var body: some Scene {
         WindowGroup {
@@ -57,7 +58,12 @@ struct FITSPIN_appApp: App {
             .environmentObject(favouritesStore)
             .environmentObject(completedStore)
 
+            // ✅ Pass the new environment objects
+            .environmentObject(filterVM)
+            .environmentObject(exerciseListVM)
+
             .preferredColorScheme(.dark)
         }
     }
 }
+
