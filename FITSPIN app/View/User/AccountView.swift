@@ -201,7 +201,7 @@ struct AccountView: View {
                         .foregroundColor(.fitspinYellow)
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(.bottom, 12)
+                    .padding(.bottom, 30)
                     .background(Color.fitspinBackground)
                 }
             }
