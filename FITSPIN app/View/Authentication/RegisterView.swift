@@ -15,6 +15,8 @@ struct RegisterView: View {
     @State private var email    = ""
     @State private var password = ""
     
+    @State private var showValidationAlert = false
+    
     var body: some View {
         ZStack {
             Color.fitspinBackground.ignoresSafeArea()
@@ -59,29 +61,56 @@ struct RegisterView: View {
                             .foregroundColor(.fitspinOffWhite)
                             .background(Color.fitspinFieldBlue)
                             .cornerRadius(8)
-                    
+                        
                     }
                     .padding(.horizontal)
-                
-                //Firebase errors
-                if let err = authVM.authError {
-                  Text(err)
-                    .foregroundColor(.red)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-                }
                     
-                    //sign up button
-                Button("Sign Up") {
-                  Task {
-                    await authVM.signUp(fullName: fullName,email: email, password: password)
-                  }
-                }
-                .buttonStyle(FPButtonStyle())
-                .disabled(fullName.isEmpty ||
-                          email.isEmpty ||
-                          password.isEmpty ||
-                          authVM.isLoading)
+                    //Firebase errors
+                    if let err = authVM.authError {
+                        Text(err)
+                            .foregroundColor(.red)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
+                    }
+                    
+                    //Sign Up Button
+                    Button("Sign Up") {
+                        // Validation
+                        guard !fullName.isEmpty,
+                              !email.isEmpty,
+                              !password.isEmpty
+                        else {
+                            showValidationAlert = true
+                            return
+                        }
+                        Task {
+                            await authVM.signUp(
+                                fullName: fullName,
+                                email: email,
+                                password: password
+                            )
+                        }
+                    }
+                    .buttonStyle(FPButtonStyle())
+                    .alert(
+                        "Please complete all fields to sign up",
+                        isPresented: $showValidationAlert
+                    ) {
+                        Button("OK", role: .cancel) { }
+                    }
+                    
+                    HStack(spacing: 4) {
+                      Text("Already have an account?")
+                        .foregroundColor(.fitspinOffWhite.opacity(0.7))
+                      NavigationLink("Log In") {
+                        LoginView()    //login screen
+                          .environmentObject(authVM)
+                      }
+                      .font(.subheadline).bold()
+                      .foregroundColor(.fitspinYellow)
+                    }
+                    .padding(.top, 8)
+                    
                     
                     //Swift divider is vertical by default so use an thin rectangle
                     HStack(alignment: .center) {
@@ -95,7 +124,7 @@ struct RegisterView: View {
                         Rectangle()
                             .fill(Color.fitspinOffWhite)
                             .frame(height: 1)
-                     }
+                    }
                     .padding(.horizontal)
                     
                     
@@ -115,7 +144,6 @@ struct RegisterView: View {
                     }
                     .padding(.horizontal)
                     
-                    
                     Text("By clicking continue, you agree to our Terms of Service and Privacy Policy")
                         .font(.caption2)
                         .foregroundColor(.fitspinOffWhite.opacity(0.7))
@@ -134,7 +162,7 @@ private struct SocialSignInButton: View {
     let text: String
     let icon: Image
     let action: () -> Void
-
+    
     var body: some View {
         Button(action: action) {
             HStack(spacing: 12) {
@@ -159,8 +187,8 @@ struct RegisterView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
             RegisterView()
-                .environmentObject(AuthViewModel()) 
-              //  .preferredColorScheme(.dark)
+                .environmentObject(AuthViewModel())
+            //  .preferredColorScheme(.dark)
         }
     }
 }

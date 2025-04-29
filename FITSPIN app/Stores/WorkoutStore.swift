@@ -24,7 +24,7 @@ final class WorkoutStore: ObservableObject {
                 self.workouts = fetched
             }
         } catch {
-            print("❌ Failed to fetch workouts: \(error)")
+            print("Failed to fetch workouts: \(error)")
         }
     }
 }

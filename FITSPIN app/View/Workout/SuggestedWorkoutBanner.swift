@@ -29,7 +29,7 @@ struct SuggestedWorkoutBanner: View {
                 .padding(.horizontal)
 
             ZStack(alignment: .bottomLeading) {
-                Image(imageName)
+                Image(caseInsensitive: imageName)
                     .resizable()
                     .scaledToFill()
                     .frame(height: 160)

@@ -1,4 +1,3 @@
-//
 //  WorkoutDatabaseService.swift
 //  FITSPIN app
 //
@@ -6,84 +5,108 @@
 //
 
 import Foundation
-import FirebaseFirestore
 import FirebaseAuth
+import FirebaseFirestore
+
+enum ServiceError: Error {
+    case notAuthenticated
+}
 
 final class WorkoutDatabaseService {
     private let db = Firestore.firestore()
     
-    private var uid: String {
+    //Throws if there is no signed-in user
+    private func requireUID() throws -> String {
         guard let u = Auth.auth().currentUser?.uid else {
-            fatalError("WorkoutDatabaseService requires a signed-in user.")
+            throw ServiceError.notAuthenticated
         }
         return u
     }
     
-    private var completedRef: CollectionReference {
-        db.collection("users").document(uid).collection("completedWorkouts")
-    }
-    
-    private var favouritesRef: CollectionReference {
-        db.collection("users").document(uid).collection("favourites")
-    }
-    
-    // MARK: - Completed Workouts
-
     func addCompleted(workout: Workout) async throws {
+        let uid = try requireUID()
         let dateString = DateFormatter.completedWorkoutKeyFormatter.string(from: Date())
-        let id = "\(workout.exerciseId)_\(dateString)"  // ← Unique per day
-        try await completedRef.document(id).setData([
+        let docID = "\(workout.exerciseId)_\(dateString)"
+        let ref = db.collection("users")
+            .document(uid)
+            .collection("completedWorkouts")
+        
+        try await ref.document(docID).setData([
             "exerciseId": workout.exerciseId,
-            "name": workout.name,
-            "category": workout.category,
+            "name":        workout.name,
+            "category":    workout.category,
             "completedAt": Timestamp(date: Date())
         ])
     }
-
-
-
+    
     func removeCompleted(workout: Workout) async throws {
-        let id = String(workout.exerciseId)
-        try await completedRef.document(id).delete()
+        let uid = try requireUID()
+        let dateString = DateFormatter.completedWorkoutKeyFormatter.string(from: Date())
+        let docID = "\(workout.exerciseId)_\(dateString)"
+        let ref = db.collection("users")
+            .document(uid)
+            .collection("completedWorkouts")
+        
+        try await ref.document(docID).delete()
     }
-
+    
     func fetchCompleted() async throws -> [CompletedWorkout] {
-        let snap = try await completedRef.getDocuments()
+        let uid = try requireUID()
+        let ref = db.collection("users")
+            .document(uid)
+            .collection("completedWorkouts")
+        
+        let snap = try await ref.getDocuments()
         return snap.documents.compactMap { doc in
             guard
                 let exerciseId = doc["exerciseId"] as? Int,
-                let ts = doc["completedAt"] as? Timestamp
-            else {
-                return nil
-            }
-            return CompletedWorkout(id: UUID(), exerciseId: exerciseId, completedAt: ts.dateValue())
+                let ts         = doc["completedAt"] as? Timestamp
+            else { return nil }
+            
+            return CompletedWorkout(
+                id: UUID(),
+                exerciseId: exerciseId,
+                completedAt: ts.dateValue()
+            )
         }
     }
-
-    // MARK: - Favourites
-
+    
     func addFavourite(workout: Workout) async throws {
-        let id = String(workout.exerciseId)
-        try await favouritesRef.document(id).setData([
+        let uid = try requireUID()
+        let id  = String(workout.exerciseId)
+        let ref = db.collection("users")
+            .document(uid)
+            .collection("favourites")
+        
+        try await ref.document(id).setData([
             "exerciseId": workout.exerciseId,
-            "name": workout.name,
-            "category": workout.category,
-            "likedAt": Timestamp(date: Date())
+            "name":        workout.name,
+            "category":    workout.category,
+            "likedAt":     Timestamp(date: Date())
         ])
     }
-
-
+    
     func removeFavourite(workout: Workout) async throws {
-        let id = String(workout.exerciseId)
-        try await favouritesRef.document(id).delete()
+        let uid = try requireUID()
+        let id  = String(workout.exerciseId)
+        let ref = db.collection("users")
+            .document(uid)
+            .collection("favourites")
+        
+        try await ref.document(id).delete()
     }
-
+    
     func fetchFavourites() async throws -> [Int: Date] {
-        let snap = try await favouritesRef.getDocuments()
+        let uid = try requireUID()
+        let ref = db.collection("users")
+            .document(uid)
+            .collection("favourites")
+        
+        let snap = try await ref.getDocuments()
         var result: [Int: Date] = [:]
         for doc in snap.documents {
             if let exerciseId = doc["exerciseId"] as? Int,
-               let ts = doc["likedAt"] as? Timestamp {
+               let ts         = doc["likedAt"]    as? Timestamp {
                 result[exerciseId] = ts.dateValue()
             }
         }
@@ -93,8 +116,8 @@ final class WorkoutDatabaseService {
 
 extension DateFormatter {
     static let completedWorkoutKeyFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd" // Only date, no time
-        return formatter
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd" // Only date, no time
+        return f
     }()
 }

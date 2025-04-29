@@ -24,24 +24,27 @@ struct NotificationsView: View {
                     Spacer()
                 }
             } else {
-                ScrollView {
-                    LazyVStack(spacing: 12) {
-                        ForEach(notificationsVM.items) { note in
-                            NotificationCard(item: note)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .swipeActions(edge: .trailing) {
-                                    Button(role: .destructive) {
+                List {
+                    // LazyVStack(spacing: 12) {
+                    ForEach(notificationsVM.items) { note in
+                        NotificationCard(item: note)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .swipeActions(edge: .trailing) {
+                                Button(role: .destructive) {
+                                    withAnimation {
                                         notificationsVM.delete(note)
-                                    } label: {
-                                        Label("Delete", systemImage: "trash")
                                     }
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
                                 }
-                        }
+                            }
+                            .listRowBackground(Color.clear)
                     }
-                    .padding()
                 }
+                .listStyle(.plain)
             }
         }
+        
         .navigationTitle("Notifications")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
@@ -58,25 +61,25 @@ struct NotificationsView: View {
                 }
             }
         }
-
+        
     }
 }
 
 struct NotificationCard: View {
     let item: NotificationItem
-
+    
     private var timeString: String {
         let formatter = DateFormatter()
         formatter.timeStyle = .short
         return formatter.string(from: item.date)
     }
-
+    
     private var dateString: String {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         return formatter.string(from: item.date)
     }
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
@@ -94,7 +97,7 @@ struct NotificationCard: View {
             Text(item.message)
                 .font(.subheadline)
                 .foregroundColor(.fitspinOffWhite)
-
+            
             Text(dateString)
                 .font(.caption2)
                 .foregroundColor(.fitspinOffWhite.opacity(0.6))

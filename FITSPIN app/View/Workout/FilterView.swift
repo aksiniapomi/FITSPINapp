@@ -128,7 +128,7 @@ struct TrendingCategoryCard: View {
 
     var body: some View {
         VStack(spacing: 6) {
-            Image(category.imageName)
+            Image(caseInsensitive: category.imageName)
                 .resizable()
                 .scaledToFill()
                 .frame(width: 70, height: 70)

@@ -10,6 +10,7 @@ struct CompletedWorkoutsView: View {
     @EnvironmentObject var workoutStore: WorkoutStore
     @State private var selectedWorkout: Workout?
     @State private var showCalendar = false
+    @Environment(\.dismiss) private var dismiss 
 
     var groupedByDate: [(Date, [CompletedWorkout])] {
         Dictionary(grouping: completedStore.completed) { $0.dateOnly }
@@ -66,8 +67,21 @@ struct CompletedWorkoutsView: View {
                 }
                 .padding(.top)
             }
-            .navigationTitle("Completed Workouts")
-            .toolbar {
+               .navigationTitle("Completed Workouts")
+               .navigationBarTitleDisplayMode(.inline)
+               .navigationBarBackButtonHidden(true)            // hide default
+               .toolbar {
+                 ToolbarItem(placement: .navigationBarLeading) {
+                   Button {
+                     dismiss()
+                   } label: {
+                     HStack(spacing: 4) {
+                       Image(systemName: "chevron.left")
+                       Text("Account")
+                     }
+                   }
+                 }
+                
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
                         showCalendar = true
