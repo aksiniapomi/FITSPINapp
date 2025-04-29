@@ -10,13 +10,13 @@ import SwiftUI
 
 final class WorkoutStore: ObservableObject {
     @Published var workouts: [Workout] = []
-
+    
     init() {
         Task {
             await loadAll()
         }
     }
-
+    
     func loadAll() async {
         do {
             let fetched = try await WgerAPI.shared.fetchWorkouts()

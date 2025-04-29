@@ -198,7 +198,6 @@ struct AccountView: View {
                             Text("This will permanently remove your data and sign you out")
                         }
                         
-                        
                         AccountRow(
                             icon: "arrow.backward.circle",
                             label: "Log Out",
@@ -283,4 +282,3 @@ struct AccountView_Previews: PreviewProvider {
             .environmentObject(CompletedWorkoutsStore())
     }
 }
-

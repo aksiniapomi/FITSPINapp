@@ -30,7 +30,6 @@ struct SignInView: View {
                 
                 Spacer().frame(height:40)
                 
-                //buttons next to each other with equal width
                 HStack(spacing: 16) {
                     NavigationLink {
                         RegisterView()
@@ -59,7 +58,6 @@ struct SignInView: View {
         .navigationBarHidden(true)
     }
 }
-
 
 struct SignInView_Previews: PreviewProvider {
     static var previews: some View {

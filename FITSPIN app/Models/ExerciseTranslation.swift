@@ -11,8 +11,5 @@ struct ExerciseTranslation: Codable, Identifiable {
     let exercise: Int
     let name: String
     let description: String
-    let language: Int // Keeping this in case it's ever needed for filtering/sorting
+    let language: Int //in case it's needed for filtering/sorting
 }
-
-
-

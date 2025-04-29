@@ -14,18 +14,16 @@ struct LoginView: View {
     
     @State private var showValidationAlert = false
     
-    
     var body: some View {
         ZStack {
             Color.fitspinBackground.ignoresSafeArea()
             ScrollView {
                 VStack(spacing: 30) {
-                    // logo
+                    
                     Image("FITSPIN_logo")
                         .resizable().scaledToFit().frame(width: 180)
                         .padding(.top, 40)
                     
-                    // header
                     VStack(spacing: 8) {
                         Text("Welcome Back!")
                             .font(.headline).foregroundColor(.fitspinYellow)
@@ -51,7 +49,7 @@ struct LoginView: View {
                     }
                     .padding(.horizontal)
                     
-                    // show any auth error
+                    //show any auth error
                     if let err = authVM.authError {
                         Text(err)
                             .foregroundColor(.red)
@@ -59,7 +57,7 @@ struct LoginView: View {
                             .padding(.horizontal)
                     }
                     
-                    // sign-in button
+                    //sign-in button
                     Button {
                         // validation
                         guard !email.isEmpty, !password.isEmpty else {
@@ -75,10 +73,10 @@ struct LoginView: View {
                     }
                     .buttonStyle(FPButtonStyle())
                     .alert("Please fill in both email and password to log in", isPresented: $showValidationAlert) {
-                                Button("OK", role: .cancel) { }
-                              }
+                        Button("OK", role: .cancel) { }
+                    }
                     
-                    // forgot / switch to register
+                    //forgot and switch to register
                     HStack {
                         NavigationLink("Forgot Password?", destination: ResetPasswordView())
                             .font(.footnote)

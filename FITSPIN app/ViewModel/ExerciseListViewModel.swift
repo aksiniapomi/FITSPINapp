@@ -10,16 +10,16 @@ class ExerciseListViewModel: ObservableObject {
     @Published private(set) var workouts: [Workout] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
-
+    
     init() {
         Task { await loadWorkouts() }
     }
-
+    
     func loadWorkouts() async {
-        guard workouts.isEmpty else { return } // Prevent unnecessary reloads
+        guard workouts.isEmpty else { return } //Prevent unnecessary reloads
         isLoading = true
         defer { isLoading = false }
-
+        
         do {
             workouts = try await WgerAPI.shared.fetchWorkouts()
             errorMessage = nil

@@ -25,7 +25,6 @@ struct NotificationsView: View {
                 }
             } else {
                 List {
-                    // LazyVStack(spacing: 12) {
                     ForEach(notificationsVM.items) { note in
                         NotificationCard(item: note)
                             .frame(maxWidth: .infinity, alignment: .leading)

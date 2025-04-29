@@ -62,7 +62,6 @@ struct HydrationView: View {
             Color.fitspinBackground.ignoresSafeArea()
             VStack(spacing: 24) {
                 
-                // MARK: Header
                 Spacer().frame(height: 3)
                 HStack {
                     Image("fitspintext")
@@ -74,7 +73,6 @@ struct HydrationView: View {
                 .padding(.leading, 3)
                 .padding(.top, 4)
                 
-                // MARK: Goal & Suggestion
                 VStack(spacing: 8) {
                     Text("Today you will need to drink:")
                         .font(.headline)
@@ -147,7 +145,7 @@ struct HydrationView: View {
                             .padding(.vertical, 4)
                             .onAppear {
                                 let today = Calendar.current.component(.day, from: Date())
-                                // center the “today” circle
+                                // center the today circle
                                 DispatchQueue.main.async {
                                     proxy.scrollTo(today, anchor: .center)
                                 }
@@ -166,7 +164,7 @@ struct HydrationView: View {
                 }
                 .padding(.horizontal, 16)
                 
-                // Intake & Add Button
+                //Intake & Add Button
                 Text(String(format: "Intake Logged: %.1f / %.1f L", hydVM.todayIntake, dailyGoal))
                     .font(.subheadline)
                     .foregroundColor(.fitspinOffWhite)

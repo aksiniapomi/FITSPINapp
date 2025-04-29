@@ -4,7 +4,6 @@
 //
 //  Created by Derya Baglan on 26/04/2025.
 //
-// CompletedWorkoutCalendarView.swift
 
 import SwiftUI
 
@@ -12,17 +11,17 @@ struct CompletedWorkoutCalendarView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var completedStore: CompletedWorkoutsStore
     @EnvironmentObject var workoutStore: WorkoutStore
-
+    
     @State private var selectedDate: Date? = nil
     @State private var showDetails = false
-
+    
     var body: some View {
         VStack(spacing: 20) {
             Text("Workout Calendar")
                 .font(.title)
                 .bold()
                 .foregroundColor(.fitspinYellow)
-
+            
             DatePicker(
                 "",
                 selection: Binding(
@@ -34,7 +33,7 @@ struct CompletedWorkoutCalendarView: View {
             .datePickerStyle(.graphical)
             .accentColor(.fitspinYellow)
             .padding()
-
+            
             Spacer()
         }
         .padding()
@@ -49,8 +48,6 @@ struct CompletedWorkoutCalendarView: View {
     }
 }
 
-
-// MARK: - Preview
 #Preview {
     CompletedWorkoutCalendarView()
         .environmentObject(CompletedWorkoutsStore())

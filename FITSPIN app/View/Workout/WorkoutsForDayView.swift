@@ -12,7 +12,7 @@ struct WorkoutsForDayView: View {
     @EnvironmentObject var completedStore: CompletedWorkoutsStore
     @EnvironmentObject var workoutStore: WorkoutStore
     @State private var selectedWorkout: Workout? = nil
-
+    
     var workoutsForDate: [Workout] {
         let matchingEntries = completedStore.completed.filter {
             Calendar.current.isDate($0.dateOnly, inSameDayAs: date)
@@ -21,7 +21,7 @@ struct WorkoutsForDayView: View {
             workoutStore.workouts.first(where: { $0.exerciseId == entry.exerciseId })
         }
     }
-
+    
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -30,12 +30,12 @@ struct WorkoutsForDayView: View {
                         .font(.title.bold())
                         .foregroundColor(.fitspinYellow)
                         .padding(.horizontal)
-
+                    
                     Text(dateFormatted)
                         .font(.subheadline)
                         .foregroundColor(.gray)
                         .padding(.horizontal)
-
+                    
                     if workoutsForDate.isEmpty {
                         VStack(spacing: 16) {
                             Image(systemName: "calendar.badge.exclamationmark")
@@ -65,7 +65,7 @@ struct WorkoutsForDayView: View {
             }
         }
     }
-
+    
     private var dateFormatted: String {
         let formatter = DateFormatter()
         formatter.dateStyle = .full
@@ -76,7 +76,7 @@ struct WorkoutsForDayView: View {
 struct WorkoutCard: View {
     let workout: Workout
     var onTap: () -> Void
-
+    
     var body: some View {
         Button(action: onTap) {
             HStack(alignment: .top, spacing: 12) {
@@ -85,16 +85,16 @@ struct WorkoutCard: View {
                     .scaledToFit()
                     .frame(width: 40, height: 40)
                     .foregroundColor(.green)
-
+                
                 VStack(alignment: .leading, spacing: 6) {
                     Text(workout.name)
                         .font(.headline)
                         .foregroundColor(.white)
-
+                    
                     Text(workout.category.capitalized)
                         .font(.caption)
                         .foregroundColor(.fitspinTangerine)
-
+                    
                     if let comment = workout.comments.first {
                         Text(comment)
                             .font(.footnote)
@@ -102,7 +102,7 @@ struct WorkoutCard: View {
                             .italic()
                     }
                 }
-
+                
                 Spacer()
                 Image(systemName: "chevron.right")
                     .foregroundColor(.gray)

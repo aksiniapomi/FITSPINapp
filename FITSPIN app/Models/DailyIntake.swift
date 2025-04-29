@@ -9,7 +9,7 @@ import Foundation
 
 //One day’s worth of water intake
 struct DailyIntake: Identifiable, Codable {
-  let id = UUID()
-  let date: Date
-  let liters: Double
+    let id = UUID()
+    let date: Date
+    let liters: Double
 }

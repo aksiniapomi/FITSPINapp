@@ -9,7 +9,7 @@ import SwiftUI
 
 struct EquipmentIcon: View {
     let name: String
-
+    
     var body: some View {
         VStack(spacing: 6) {
             Image(name)
@@ -18,7 +18,7 @@ struct EquipmentIcon: View {
                 .frame(width: 60, height: 60)
                 .background(Color.gray.opacity(0.1))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
-
+            
             Text(name)
                 .font(.caption2)
                 .foregroundColor(.white)

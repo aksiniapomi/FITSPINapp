@@ -10,13 +10,13 @@ struct CompletedWorkoutsView: View {
     @EnvironmentObject var workoutStore: WorkoutStore
     @State private var selectedWorkout: Workout?
     @State private var showCalendar = false
-    @Environment(\.dismiss) private var dismiss 
-
+    @Environment(\.dismiss) private var dismiss
+    
     var groupedByDate: [(Date, [CompletedWorkout])] {
         Dictionary(grouping: completedStore.completed) { $0.dateOnly }
             .sorted { $0.key > $1.key }
     }
-
+    
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -27,7 +27,7 @@ struct CompletedWorkoutsView: View {
                                 .font(.headline)
                                 .foregroundColor(.fitspinYellow)
                                 .padding(.horizontal)
-
+                            
                             ForEach(entries) { entry in
                                 if let workout = workoutStore.workouts.first(where: { $0.exerciseId == entry.exerciseId }) {
                                     Button {
@@ -37,19 +37,19 @@ struct CompletedWorkoutsView: View {
                                             Image(systemName: "checkmark.seal.fill")
                                                 .foregroundColor(.green)
                                                 .imageScale(.large)
-
+                                            
                                             VStack(alignment: .leading, spacing: 4) {
                                                 Text(workout.name)
                                                     .font(.subheadline)
                                                     .foregroundColor(.white)
-
+                                                
                                                 Text(workout.category.capitalized)
                                                     .font(.caption)
                                                     .foregroundColor(.fitspinBlue)
                                             }
-
+                                            
                                             Spacer()
-
+                                            
                                             Image(systemName: "chevron.right")
                                                 .foregroundColor(.gray)
                                         }
@@ -67,20 +67,20 @@ struct CompletedWorkoutsView: View {
                 }
                 .padding(.top)
             }
-               .navigationTitle("Completed Workouts")
-               .navigationBarTitleDisplayMode(.inline)
-               .navigationBarBackButtonHidden(true)            // hide default
-               .toolbar {
-                 ToolbarItem(placement: .navigationBarLeading) {
-                   Button {
-                     dismiss()
-                   } label: {
-                     HStack(spacing: 4) {
-                       Image(systemName: "chevron.left")
-                       Text("Account")
-                     }
-                   }
-                 }
+            .navigationTitle("Completed Workouts")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "chevron.left")
+                            Text("Account")
+                        }
+                    }
+                }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
@@ -100,7 +100,7 @@ struct CompletedWorkoutsView: View {
             .background(Color.fitspinBackground.ignoresSafeArea())
         }
     }
-
+    
     private func formatted(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium

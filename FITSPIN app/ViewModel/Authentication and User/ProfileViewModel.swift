@@ -14,12 +14,12 @@ class ProfileViewModel: ObservableObject {
     @Published var weight: Int = 70
     @Published var fitnessLevel: String = "Beginner"
     @Published var goals: Set<FitnessGoalsView.Goal> = []
-
+    
     private let service = ProfileService()
     private var userId: String? {
         Auth.auth().currentUser?.uid
     }
-
+    
     // Corrected load() without arguments
     func load() async {
         do {
@@ -27,14 +27,13 @@ class ProfileViewModel: ObservableObject {
                 updateProfile(profile)
             }
         } catch {
-            print("❌ Failed to load profile:", error.localizedDescription)
+            print("Failed to load profile:", error.localizedDescription)
         }
     }
-
-    // Still need userId for saving
+    
     func save() async {
         guard let userId else {
-            print("⚠️ No user ID found.")
+            print("No user ID found.")
             return
         }
         let profile = UserProfile(
@@ -45,14 +44,14 @@ class ProfileViewModel: ObservableObject {
             fitnessLevel: fitnessLevel,
             goals: goals.map(\.rawValue)
         )
-
+        
         do {
             try await service.saveProfile(profile)
         } catch {
-            print("❌ Failed to save profile:", error.localizedDescription)
+            print("Failed to save profile:", error.localizedDescription)
         }
     }
-
+    
     private func updateProfile(_ profile: UserProfile) {
         self.age = profile.age
         self.height = profile.height

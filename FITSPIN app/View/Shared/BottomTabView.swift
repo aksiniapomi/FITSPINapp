@@ -14,7 +14,7 @@ struct BottomTabView: View {
     @EnvironmentObject var filterVM: FilterViewModel
     @EnvironmentObject var exerciseListVM: ExerciseListViewModel
     @EnvironmentObject var profileVM: ProfileViewModel
-
+    
     var body: some View {
         TabView {
             HomeView()
@@ -24,7 +24,7 @@ struct BottomTabView: View {
                     Image(systemName: "house")
                     Text("Home")
                 }
-
+            
             TopTabsScreen()
                 .environmentObject(filterVM)
                 .environmentObject(exerciseListVM)
@@ -32,7 +32,7 @@ struct BottomTabView: View {
                     Image(systemName: "dumbbell")
                     Text("Workouts")
                 }
-
+            
             HydrationView()
                 .environmentObject(homeVM)
                 .environmentObject(hydVM)
@@ -41,7 +41,7 @@ struct BottomTabView: View {
                     Image(systemName: "drop")
                     Text("Hydration")
                 }
-
+            
             AccountView()
                 .environmentObject(profileVM)
                 .tabItem {
@@ -67,7 +67,3 @@ struct BottomTabView_Previews: PreviewProvider {
             .previewDisplayName("Full App Tabs")
     }
 }
-
-
-        
-

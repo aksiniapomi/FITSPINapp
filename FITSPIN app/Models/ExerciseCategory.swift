@@ -11,4 +11,3 @@ struct ExerciseCategory: Codable, Identifiable {
     let id: Int
     let name: String
 }
-

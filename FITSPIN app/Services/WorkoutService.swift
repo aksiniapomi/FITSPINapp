@@ -10,7 +10,7 @@ import Foundation
 struct WorkoutService {
     static func fetchWorkouts(for temperature: Double) async throws -> [Workout] {
         let all = try await WgerAPI.shared.fetchWorkouts()
-
+        
         if temperature >= 20 {
             // Outdoor: no equipment OR only a gym mat
             return all.filter { workout in

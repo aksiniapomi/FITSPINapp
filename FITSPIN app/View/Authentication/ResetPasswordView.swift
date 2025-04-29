@@ -11,22 +11,22 @@ import SwiftUI
 struct ResetPasswordView: View {
     @EnvironmentObject private var authVM: AuthViewModel
     @Environment(\.dismiss)   private var dismiss
-
+    
     @State private var email     = ""
     @State private var showAlert = false
-
+    
     var body: some View {
         ZStack {
-           
+            
             Color.fitspinBackground
                 .ignoresSafeArea()
-
+            
             VStack(spacing: 20) {
                 Text("Enter your email to reset your password")
                     .font(.subheadline)
                     .foregroundColor(.fitspinOffWhite)
                     .multilineTextAlignment(.center)
-
+                
                 TextField("Email", text: $email)
                     .textContentType(.emailAddress)
                     .keyboardType(.emailAddress)
@@ -35,7 +35,7 @@ struct ResetPasswordView: View {
                     .background(Color.fitspinFieldBlue)
                     .cornerRadius(8)
                     .padding(.horizontal)
-
+                
                 Button("Send Reset Link") {
                     Task {
                         await authVM.resetPassword(for: email)
@@ -44,7 +44,7 @@ struct ResetPasswordView: View {
                 }
                 .buttonStyle(FPButtonStyle())
                 .disabled(email.isEmpty)
-
+                
                 Spacer()
             }
             .padding(.top, 40)
@@ -60,7 +60,7 @@ struct ResetPasswordView: View {
         }
         .navigationTitle("Reset Password")
         .navigationBarTitleDisplayMode(.inline)
-
+        
         //hide default back button and add "< Account"
         .navigationBarBackButtonHidden(true)
         .toolbar {

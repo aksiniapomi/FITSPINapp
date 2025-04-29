@@ -13,14 +13,14 @@ struct FavouritesView: View {
     @EnvironmentObject var favouritesStore: FavouritesStore
     @State private var sortOption: SortOption = .name
     @State private var showDetail: Workout?
-
+    
     enum SortOption: String, CaseIterable, Identifiable {
         case name = "Name"
         case category = "Category"
         case likedDate = "Liked Date"
         var id: String { rawValue }
     }
-
+    
     var sortedFavourites: [Workout] {
         let workouts = favouritesStore.favourites(from: workoutStore.workouts)
         switch sortOption {
@@ -36,14 +36,14 @@ struct FavouritesView: View {
             }
         }
     }
-
+    
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 12) {
                 Text("Favourites")
                     .font(.largeTitle.bold())
                     .padding(.horizontal)
-
+                
                 HStack {
                     Spacer()
                     Menu {
@@ -64,7 +64,7 @@ struct FavouritesView: View {
                     }
                     .padding(.trailing)
                 }
-
+                
                 ScrollView {
                     LazyVStack(spacing: 16) {
                         ForEach(sortedFavourites) { workout in
@@ -80,7 +80,7 @@ struct FavouritesView: View {
             .background(Color.fitspinBackground.ignoresSafeArea())
         }
     }
-
+    
     @ViewBuilder
     private func workoutCard(for workout: Workout) -> some View {
         FavouriteWorkoutCard(workout: workout)

@@ -6,21 +6,21 @@
 //
 
 import SwiftUI
-import UIKit    // for UIImage
+import UIKit    //for UIImage
 
 extension Image {
-  //Try exact, then lowercase, uppercase, then capitalised image variants
-  init(caseInsensitive name: String) {
-    let candidates = [
-      name,
-      name.lowercased(),
-      name.uppercased(),
-      name.capitalized
-    ]
-    if let found = candidates.first(where: { UIImage(named: $0) != nil }) {
-      self = Image(found)
-    } else {
-      self = Image(name)
+    //Try exact, then lowercase, uppercase, then capitalised image variants
+    init(caseInsensitive name: String) {
+        let candidates = [
+            name,
+            name.lowercased(),
+            name.uppercased(),
+            name.capitalized
+        ]
+        if let found = candidates.first(where: { UIImage(named: $0) != nil }) {
+            self = Image(found)
+        } else {
+            self = Image(name)
+        }
     }
-  }
 }
