@@ -6,38 +6,29 @@
 import SwiftUI
 
 final class FavouritesStore: ObservableObject {
-    @AppStorage("favouriteWorkoutIDs") private var storedIDsData: Data = Data()
-    @AppStorage("favouriteWorkoutDates") private var storedDatesData: Data = Data()
-
     @Published private(set) var favouriteIDs: [Int] = []
     @Published private(set) var favouriteDates: [Int: Date] = [:]
 
-    init() {
-        load()
-    }
+    private let service = WorkoutDatabaseService()
 
-    // MARK: - Public API
+    init() {
+        Task {
+            await load()
+        }
+    }
 
     func toggle(_ workout: Workout) {
         if isFavourite(workout) {
-            remove(workout: workout)
+            Task {
+                try? await service.removeFavourite(workout: workout)
+                await load()
+            }
         } else {
-            save(workout: workout)
+            Task {
+                try? await service.addFavourite(workout: workout)
+                await load()
+            }
         }
-    }
-
-    func save(workout: Workout) {
-        if !favouriteIDs.contains(workout.exerciseId) {
-            favouriteIDs.append(workout.exerciseId)
-            favouriteDates[workout.exerciseId] = Date()
-            persist()
-        }
-    }
-
-    func remove(workout: Workout) {
-        favouriteIDs.removeAll { $0 == workout.exerciseId }
-        favouriteDates.removeValue(forKey: workout.exerciseId)
-        persist()
     }
 
     func isFavourite(_ workout: Workout) -> Bool {
@@ -52,25 +43,15 @@ final class FavouritesStore: ObservableObject {
         allWorkouts.filter { favouriteIDs.contains($0.exerciseId) }
     }
 
-    // MARK: - Persistence
-
-    private func load() {
-        if let decodedIDs = try? JSONDecoder().decode([Int].self, from: storedIDsData) {
-            favouriteIDs = decodedIDs
-        }
-
-        if let decodedDates = try? JSONDecoder().decode([Int: Date].self, from: storedDatesData) {
-            favouriteDates = decodedDates
-        }
-    }
-
-    private func persist() {
-        if let encodedIDs = try? JSONEncoder().encode(favouriteIDs) {
-            storedIDsData = encodedIDs
-        }
-
-        if let encodedDates = try? JSONEncoder().encode(favouriteDates) {
-            storedDatesData = encodedDates
+    private func load() async {
+        do {
+            let loaded = try await service.fetchFavourites()
+            DispatchQueue.main.async {
+                self.favouriteDates = loaded
+                self.favouriteIDs = Array(loaded.keys)
+            }
+        } catch {
+            print("❌ Failed to load favourites: \(error)")
         }
     }
 }

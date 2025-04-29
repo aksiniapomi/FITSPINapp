@@ -158,7 +158,7 @@ struct ShuffleView: View {
 
     private var workoutControls: some View {
         let workout = vm.workouts[currentCardIndex]
-        let isCompleted = completedStore.isCompleted(workout)
+        let isCompleted = completedStore.isCompletedToday(workout)
         let isFavourite = favouritesStore.isFavourite(workout)
 
         return HStack(spacing: 20) {
